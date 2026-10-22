@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Who Did It? · Level 1: The Library</title>
+  <meta name="description" content="A detective game for practising the Passive Voice (Present Simple Passive). Rebuild torn newspaper headlines before Mr. Nobody gets stronger." />
+  <meta name="robots" content="noindex" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="vignette" aria-hidden="true"></div>
+  <div id="balloon-layer" aria-hidden="false"></div>
+
+  <!-- INTRO -->
+  <main id="screen-intro" class="screen">
+    <div class="intro-card">
+      <p class="kicker">WHO DID IT? &middot; LEVEL 1</p>
+      <h1>The Library</h1>
+      <div id="intro-text"></div>
+      <p class="grammar-badge" id="grammar-badge"></p>
+      <div class="intro-actions">
+        <button id="btn-start" class="btn btn-primary">Start the investigation</button>
+        <button id="btn-new" class="btn btn-ghost hidden">New game</button>
+      </div>
+      <p class="tiny">Tip: drag a piece onto a slot, or click a piece and then click a slot. Sound on for the full effect.</p>
+    </div>
+  </main>
+
+  <!-- GAME -->
+  <div id="screen-game" class="screen hidden">
+    <header class="hud">
+      <div class="hud-title">
+        <span class="kicker">WHO DID IT? &middot; LEVEL 1</span>
+        <strong>The Library</strong>
+      </div>
+      <div class="fear" aria-label="Fear meter">
+        <span class="fear-label">FEAR</span>
+        <div class="fear-track" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0" id="fear-track">
+          <div class="fear-fill" id="fear-fill"></div>
+        </div>
+        <span class="fear-num" id="fear-num">0</span>
+      </div>
+      <div class="hud-actions">
+        <button id="btn-note" class="btn btn-small" aria-expanded="false">Detective&rsquo;s note</button>
+        <button id="btn-mute" class="btn btn-small" aria-pressed="false">Sound: on</button>
+        <button id="btn-restart" class="btn btn-small btn-ghost">Restart</button>
+      </div>
+    </header>
+
+    <div id="note-panel" class="note-panel hidden">
+      <strong>Passive Voice (Present Simple)</strong>
+      <span class="formula">am / is / are + past participle (V3)</span>
+      <span>The subject <em>receives</em> the action. Choose <em>is</em> or <em>are</em> to match the subject.</span>
+    </div>
+
+    <div class="layout">
+      <section class="case" aria-labelledby="case-title">
+        <div class="case-head">
+          <h2 id="case-title">Headline <span id="case-num">1</span> of <span id="case-total">6</span></h2>
+          <p class="case-sub">Rebuild the torn headline. Some pieces are traps.</p>
+        </div>
+
+        <div class="headline-strip" id="slots" aria-label="Headline slots"></div>
+
+        <div class="tray" id="tray" aria-label="Torn pieces"></div>
+
+        <p id="feedback" class="feedback" role="status" aria-live="polite"></p>
+
+        <div id="complete" class="complete hidden">
+          <div class="stamp">RESTORED</div>
+          <p id="complete-note" class="complete-note"></p>
+          <button id="btn-next" class="btn btn-primary">Next headline &rarr;</button>
+        </div>
+      </section>
+
+      <aside class="board-wrap" aria-labelledby="board-title">
+        <h2 id="board-title">Evidence Board</h2>
+        <div class="board" id="board"></div>
+        <div class="clippings">
+          <strong>Secret clippings <span id="clip-count">0</span>/5</strong>
+          <ul id="clip-list"></ul>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <main id="screen-final" class="screen hidden">
+    <div class="final-card">
+      <p class="kicker">CASE FILE &middot; LEVEL 1 COMPLETE</p>
+      <h1>The Library is quiet again&hellip;</h1>
+      <div class="board board-final" id="board-final"></div>
+      <p class="final-story">
+        Read the headlines again. Books <em>are stolen</em>. Noises <em>are heard</em>. Nothing <em>is known</em>.
+        Everything happens, but nobody is named.
+      </p>
+      <div class="teaser">
+        <span class="teaser-label">NEXT: LEVEL 2 &middot; THE OLD SCHOOL</span>
+        <strong>Who is missing from these sentences?</strong>
+        <span class="tiny">Coming soon</span>
+      </div>
+      <ul class="stats" id="stats"></ul>
+      <div class="intro-actions">
+        <button id="btn-again" class="btn btn-primary">Play again</button>
+      </div>
+    </div>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+  <div id="blackout" class="blackout hidden" aria-live="assertive">
+    <p>The lights go out&hellip;</p>
+  </div>
+
+  <script src="js/level1.js"></script>
+  <script src="js/game.js"></script>
+</body>
+</html>
