@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Помоги Ёжику поймать листья! — englishnaya.ru</title>
+  <meta name="description" content="Игра для малышей 0–5 лет: ловим осенние листья нужного цвета и учим цвета по-английски." />
+
+  <!-- Google Fonts: Unbounded (как на главной) -->
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&subset=latin,cyrillic" rel="stylesheet">
+  <link rel="stylesheet" href="leaves.css" />
+</head>
+<body data-screen="pick">
+
+  <!-- Осенний фон -->
+  <div class="bg" aria-hidden="true">
+    <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#fbf5d0"/>
+          <stop offset=".55" stop-color="#f7e0a8"/>
+          <stop offset="1" stop-color="#f6cc92"/>
+        </linearGradient>
+        <g id="tree">
+          <rect x="-15" y="40" width="30" height="190" rx="9" fill="#9a6a47"/>
+          <path d="M0 110 L-58 52" stroke="#9a6a47" stroke-width="11" stroke-linecap="round"/>
+          <path d="M0 130 L56 64" stroke="#9a6a47" stroke-width="11" stroke-linecap="round"/>
+          <circle cx="0" cy="-30" r="96"/>
+          <circle cx="-86" cy="26" r="70"/>
+          <circle cx="86" cy="22" r="72"/>
+          <circle cx="-34" cy="-62" r="42" fill="#fff" opacity=".13"/>
+          <circle cx="60" cy="0" r="26" fill="#fff" opacity=".10"/>
+        </g>
+        <g id="pumpkin">
+          <ellipse cx="0" cy="0" rx="46" ry="38" fill="#f08a3c"/>
+          <path d="M-20 -34 C-34 -10 -34 10 -20 34 M0 -38 C-10 -12 -10 12 0 38 M20 -34 C34 -10 34 10 20 34" stroke="#d96a22" stroke-width="4" fill="none"/>
+          <rect x="-5" y="-50" width="10" height="16" rx="4" fill="#6b8e3f"/>
+        </g>
+        <g id="mush">
+          <rect x="-8" y="0" width="16" height="26" rx="6" fill="#fbf1dc"/>
+          <path d="M-30 4 C-30 -26 30 -26 30 4 Z" fill="#ee6a5e"/>
+          <circle cx="-12" cy="-8" r="5" fill="#fff"/><circle cx="8" cy="-13" r="4" fill="#fff"/><circle cx="16" cy="-2" r="3" fill="#fff"/>
+        </g>
+        <g id="cloud">
+          <ellipse cx="0" cy="0" rx="90" ry="26" fill="#fff"/>
+          <ellipse cx="-34" cy="-18" rx="40" ry="28" fill="#fff"/>
+          <ellipse cx="22" cy="-26" rx="46" ry="34" fill="#fff"/>
+        </g>
+      </defs>
+
+      <rect width="1600" height="900" fill="url(#sky)"/>
+      <circle cx="1250" cy="190" r="200" fill="#fff8cf" opacity=".5"/>
+      <circle cx="1250" cy="190" r="100" fill="#fff3a3"/>
+
+      <g opacity=".85">
+        <use href="#cloud" class="cloud c1" transform="translate(300 150)"/>
+        <use href="#cloud" class="cloud c2" transform="translate(760 100) scale(.8)"/>
+        <use href="#cloud" class="cloud c3" transform="translate(1100 300) scale(.7)"/>
+      </g>
+
+      <path d="M0 560 C220 470 420 500 620 560 S980 620 1180 540 S1480 480 1600 540 V900 H0Z" fill="#f4c98e"/>
+      <path d="M0 640 C260 570 520 600 760 650 S1180 690 1380 620 S1560 600 1600 620 V900 H0Z" fill="#ebb177"/>
+
+      <!-- дальние деревья -->
+      <use href="#tree" transform="translate(560 470) scale(.6)" fill="#f4c25a" opacity=".9"/>
+      <use href="#tree" transform="translate(1020 480) scale(.55)" fill="#f2a4cf" opacity=".85"/>
+
+      <!-- ближние деревья -->
+      <use href="#tree" transform="translate(150 490) scale(1.35)" fill="#f2a65a"/>
+      <use href="#tree" transform="translate(380 540) scale(.95)" fill="#e9724c"/>
+      <use href="#tree" transform="translate(1250 520) scale(1.05)" fill="#f4cf5d"/>
+      <use href="#tree" transform="translate(1470 480) scale(1.4)" fill="#ee8b4a"/>
+
+      <path d="M0 800 C300 770 700 790 1000 775 S1450 760 1600 775 V900 H0Z" fill="#b9c85f"/>
+      <path d="M0 850 C400 830 900 845 1600 828 V900 H0Z" fill="#9db255"/>
+
+      <g stroke="#7e9744" stroke-width="5" stroke-linecap="round" fill="none">
+        <path d="M120 830 l-8 -26 M132 830 l2 -30 M144 830 l10 -24"/>
+        <path d="M640 842 l-8 -24 M652 842 l2 -28 M664 842 l9 -22"/>
+        <path d="M980 836 l-8 -24 M992 836 l2 -28 M1004 836 l9 -22"/>
+        <path d="M1440 846 l-8 -24 M1452 846 l2 -28 M1464 846 l9 -22"/>
+      </g>
+      <use href="#pumpkin" transform="translate(70 830) scale(.9)"/>
+      <use href="#pumpkin" transform="translate(1530 840) scale(1.1)"/>
+      <use href="#mush" transform="translate(300 850) scale(.8)"/>
+      <use href="#mush" transform="translate(1330 856) scale(.9)"/>
+    </svg>
+  </div>
+
+  <!-- Верхняя панель: лого, слово-цвет, кнопки -->
+  <header class="topbar">
+    <img class="logo" src="img/logo.png" alt="Инглишная KiDS" width="216" height="260" />
+
+    <div class="target hidden" id="target" role="status" aria-live="polite">
+      <img class="t-leaf" id="t-leaf" src="img/leaf-red.png" alt="" />
+      <div class="t-info">
+        <span class="t-word" id="t-word">Red</span>
+        <span class="t-stars" id="t-stars" aria-label="Собрано листьев"></span>
+      </div>
+      <span class="t-round" id="t-round">1/4</span>
+    </div>
+
+    <div class="tools">
+      <button class="tbtn" id="btn-music" aria-label="Музыка" aria-pressed="true" title="Музыка">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="3" fill="currentColor"/><circle cx="16.5" cy="16" r="3" fill="currentColor"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tbtn" id="btn-sound" aria-label="Звуки и голос" aria-pressed="true" title="Звуки и голос">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <a class="tbtn wide" href="/games/" aria-label="К списку игр">К играм</a>
+    </div>
+  </header>
+
+  <!-- 1. Выбор героя -->
+  <main class="screen" id="screen-pick">
+    <div class="panel">
+      <h1 class="game-title">Помоги Ёжику<br>поймать листья!</h1>
+      <h2 class="sub">Выбери героя</h2>
+      <div class="cards" id="cards"></div>
+      <p class="note">Для самых маленьких: играйте вместе и повторяйте слова-цвета вслух.</p>
+    </div>
+  </main>
+
+  <!-- 2. Правила -->
+  <section class="screen hidden" id="screen-rules">
+    <div class="panel rules">
+      <div class="rules-top">
+        <div class="rules-hero"><img id="rules-img" src="img/hedgehog.png" alt="" /></div>
+        <div class="bubble" id="rules-hi">Привет!</div>
+      </div>
+      <h2 class="sub">Как играть?</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-pic"><div class="mini-target"><img src="img/leaf-red.png" alt=""><b>Red</b></div></div>
+          <p>Смотри на слово наверху. Это цвет нужных листьев.</p>
+        </li>
+        <li>
+          <div class="step-pic fall">
+            <img class="f1" src="img/leaf-yellow.png" alt=""><img class="f2" src="img/leaf-red.png" alt=""><img class="f3" src="img/leaf-green.png" alt="">
+          </div>
+          <p>Листья падают. Двигай героя пальцем или мышкой — или просто нажимай на листья.</p>
+        </li>
+        <li>
+          <div class="step-pic"><div class="mini-basket"><img src="img/basket.png" alt=""><img class="in" src="img/leaf-red.png" alt=""></div></div>
+          <p>Лови листья нужного цвета и клади их в корзинку!</p>
+        </li>
+      </ol>
+      <div class="actions">
+        <button class="btn" id="btn-rules-back">Другой герой</button>
+        <button class="btn primary" id="btn-go">Поехали!</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. Игра -->
+  <section class="screen hidden" id="screen-play">
+    <div class="field" id="field">
+      <div class="leaves" id="leaves"></div>
+    </div>
+    <div class="popup hidden" id="popup" role="status" aria-live="assertive"></div>
+  </section>
+
+  <!-- 4. Победа -->
+  <section class="screen hidden" id="screen-win">
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div class="panel win">
+      <div class="win-hero" id="win-hero"></div>
+      <h2 class="sub big">Ура! Все листья собраны!</h2>
+      <div class="win-stars" id="win-stars" aria-label="Четыре звезды"></div>
+      <div class="actions">
+        <button class="btn primary" id="btn-again">Играть ещё</button>
+        <button class="btn" id="btn-other">Другой герой</button>
+        <a class="btn" href="/games/">К другим играм</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
