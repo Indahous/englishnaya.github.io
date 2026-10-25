@@ -342,7 +342,7 @@ button.target:hover { background: #fffaf3; }
 .story a { color: var(--tilda-pink-dark); font-weight: 600; }
 #screen-win .panel { background: rgba(255,255,255,0.9); }
 
-@media (prefers-reduced-motion: reduce) { .hero-box, .win-rain, .rain, .pd { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .face .eye, .arm, .footL, .footR, .w-bootL, .w-bootR, .hero-box, .win-rain, .rain, .pd { animation: none; } }
 
 /* Посадка одежды (ёжик): сапоги выходят из-под тела, пальто без капюшона */
 .hero-box.fit { isolation: isolate; }
@@ -352,3 +352,55 @@ button.target:hover { background: #fffaf3; }
 .hero-box.fit .w-coat { z-index: 2; }
 .foot { position: absolute; left: 0; top: 0; width: 100%; height: 100%; z-index: 0; pointer-events: none; filter: drop-shadow(0 6px 5px rgba(0,0,0,0.16)); }
 .w-bootL.on ~ .footL, .w-bootR.on ~ .footR { display: none; }
+
+/* ---------- Оживление ёжика: лицо, ручки, ножки ---------- */
+.face, .arms { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.face { z-index: 1; }
+.arms { z-index: 1; }
+.face .brows path { fill: none; stroke: #b88c4c; stroke-width: 3.2; stroke-linecap: round; }
+.face .eyes-happy path { fill: none; stroke: #1d1526; stroke-width: 4.5; stroke-linecap: round; }
+.face .m-smile { fill: none; stroke: #8a8566; stroke-width: 3.6; stroke-linecap: round; }
+.face .eyes-happy, .face .m-happy, .face .m-o { display: none; }
+.face .eye, .face .brows { transform-box: fill-box; transform-origin: 50% 50%; }
+.face .eye { animation: blink 4.6s infinite; }
+.face .eye + .eye { animation-delay: 0s; }
+@keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.08); } }
+.face .brows { transition: transform 0.15s; }
+.arm .skin, .arm .hand { fill: #fbe4b4; stroke: #dcb86c; stroke-width: 2.6; }
+.arm .sleeve { display: none; }
+.arm .slv { fill: #ee9f93; stroke: #c9786e; stroke-width: 2.6; }
+.arm .cuff { fill: #f7e8b8; stroke: #d9bb73; stroke-width: 2.4; }
+.w-coat.on ~ .arms .sleeve { display: inline; }
+.w-coat.on ~ .arms .skin { display: none; }
+.arm { transition: transform 0.25s ease-out; }
+.armL { transform: rotate(-22deg); animation: sway 3.4s ease-in-out infinite; }
+.armR { transform: rotate(22deg); animation: sway 3.4s ease-in-out infinite reverse; }
+@keyframes sway { 0%, 100% { translate: 0 0; } 50% { translate: 0 1.5px; } }
+
+/* удивление (не тот предмет) */
+.hero-box[data-anim="nope"] .face .eye { animation: none; transform: scale(1.18); }
+.hero-box[data-anim="nope"] .face .brows { transform: translateY(-9px); }
+.hero-box[data-anim="nope"] .face .m-smile { display: none; }
+.hero-box[data-anim="nope"] .face .m-o { display: inline; }
+.hero-box[data-anim="nope"] .arms { z-index: 3; }
+.hero-box[data-anim="nope"] .armL { transform: rotate(105deg); }
+.hero-box[data-anim="nope"] .armR { transform: rotate(-105deg); }
+
+/* радость (правильно, танец, выход, победа) */
+.hero-box[data-anim="cheer"] .face .eyes, .hero-box[data-anim="dance"] .face .eyes, .hero-box.walkout .face .eyes, .win-hero .hero-box .face .eyes { display: none; }
+.hero-box[data-anim="cheer"] .face .eyes-happy, .hero-box[data-anim="dance"] .face .eyes-happy, .hero-box.walkout .face .eyes-happy, .win-hero .hero-box .face .eyes-happy { display: inline; }
+.hero-box[data-anim="cheer"] .face .m-smile, .hero-box[data-anim="dance"] .face .m-smile, .hero-box.walkout .face .m-smile, .win-hero .hero-box .face .m-smile { display: none; }
+.hero-box[data-anim="cheer"] .face .m-happy, .hero-box[data-anim="dance"] .face .m-happy, .hero-box.walkout .face .m-happy, .win-hero .hero-box .face .m-happy { display: inline; }
+.hero-box[data-anim="cheer"] .face .brows, .hero-box[data-anim="dance"] .face .brows, .win-hero .hero-box .face .brows { transform: translateY(-4px); }
+.hero-box[data-anim="cheer"] .arms, .hero-box[data-anim="dance"] .arms, .hero-box.walkout .arms, .win-hero .hero-box .arms { z-index: 3; }
+.hero-box[data-anim="cheer"] .armL, .hero-box[data-anim="dance"] .armL, .hero-box.walkout .armL, .win-hero .hero-box .armL { animation: wavL 0.5s ease-in-out infinite; }
+.hero-box[data-anim="cheer"] .armR, .hero-box[data-anim="dance"] .armR, .hero-box.walkout .armR, .win-hero .hero-box .armR { animation: wavR 0.5s ease-in-out infinite; }
+@keyframes wavL { 0%, 100% { transform: rotate(150deg); } 50% { transform: rotate(122deg); } }
+@keyframes wavR { 0%, 100% { transform: rotate(-122deg); } 50% { transform: rotate(-150deg); } }
+
+/* ножки: прыжки по очереди */
+.hero-box.fit .footL, .hero-box.fit .footR, .hero-box.fit .w-bootL, .hero-box.fit .w-bootR { transition: transform 0.2s; }
+.hero-box[data-anim="cheer"] .footL, .hero-box[data-anim="cheer"] .w-bootL, .hero-box[data-anim="dance"] .footL, .hero-box[data-anim="dance"] .w-bootL, .hero-box.walkout .footL, .hero-box.walkout .w-bootL, .win-hero .hero-box .footL, .win-hero .hero-box .w-bootL { animation: stepA 0.5s ease-in-out infinite; }
+.hero-box[data-anim="cheer"] .footR, .hero-box[data-anim="cheer"] .w-bootR, .hero-box[data-anim="dance"] .footR, .hero-box[data-anim="dance"] .w-bootR, .hero-box.walkout .footR, .hero-box.walkout .w-bootR, .win-hero .hero-box .footR, .win-hero .hero-box .w-bootR { animation: stepB 0.5s ease-in-out infinite; }
+@keyframes stepA { 0%, 50%, 100% { transform: translateY(0); } 25% { transform: translateY(-9px); } }
+@keyframes stepB { 0%, 50%, 100% { transform: translateY(0); } 75% { transform: translateY(-9px); } }

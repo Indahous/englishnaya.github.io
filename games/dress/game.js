@@ -14,7 +14,7 @@
   const HEROES = {
     hedgehog: { name: 'Ёжик',    img: 'img/hedgehog.png', ar: 446 / 560, hi: 'Привет! Я Ёжик! Помоги мне одеться на прогулку!',
       coat: { l: 11, t: 42.5, w: 78 }, bootL: { l: 28.3, w: 23, b: -2.2 }, bootR: { l: 54.2, w: 23, b: -2.2 }, umbrella: { l: 76, w: 32 },
-      fit: { body: 'img/hedgehog-body.png', footL: 'img/hedgehog-footL.png', footR: 'img/hedgehog-footR.png' } },
+      fit: { body: 'img/hedgehog-clean.png', svg: true, footL: 'img/hedgehog-footL.png', footR: 'img/hedgehog-footR.png' } },
     fox:      { name: 'Лисичка', img: 'img/fox.png',      ar: 451 / 600, hi: 'Привет! Я Лисичка! Помоги мне одеться на прогулку!',
       coat: { l: 9, t: 24.6, w: 48 }, bootL: { l: 11, w: 16 }, bootR: { l: 38, w: 16 }, umbrella: { l: -26, w: 26 } },
     squirrel: { name: 'Белочка', img: 'img/squirrel.png', ar: 553 / 560, hi: 'Привет! Я Белочка! Помоги мне одеться на прогулку!',
@@ -64,6 +64,19 @@
     box.style.setProperty('--ar', h.ar);
     const on = allWorn ? ' on' : '';
     const fit = h.fit;
+    const FACE = '<svg class="face" viewBox="0 0 446 560" aria-hidden="true">' +
+      '<g class="brows"><path d="M148 139 Q157 130 167 134" /><path d="M284 135 Q295 131 304 140" /></g>' +
+      '<g class="eyes"><g class="eye"><ellipse cx="162" cy="162" rx="9.5" ry="12.5" fill="#1d1526"/><ellipse cx="163.5" cy="160" rx="4" ry="5.6" fill="#fff"/></g>' +
+      '<g class="eye"><ellipse cx="288" cy="162" rx="9.5" ry="12.5" fill="#1d1526"/><ellipse cx="289.5" cy="160" rx="4" ry="5.6" fill="#fff"/></g></g>' +
+      '<g class="eyes-happy"><path d="M151 167 Q162 148 173 167"/><path d="M277 167 Q288 148 299 167"/></g>' +
+      '<path class="m-smile" d="M204 198 Q228 212 253 198"/>' +
+      '<g class="m-happy"><path d="M206 195 Q229 232 252 195 Z" fill="#8a3b3b" stroke="#8a3b3b" stroke-width="3" stroke-linejoin="round"/><ellipse cx="229" cy="212" rx="10" ry="5.5" fill="#ee8f8f"/></g>' +
+      '<ellipse class="m-o" cx="229" cy="206" rx="8.5" ry="11.5" fill="#8a3b3b"/></svg>';
+    const ARM = (side, px, sgn) => '<g class="arm arm' + side + '" style="transform-origin:' + px + 'px 300px">' +
+      '<path class="skin" d="M-13 -4 Q-13 -8 0 -8 Q13 -8 13 -4 L10.5 74 Q0 79 -10.5 74 Z" transform="translate(' + px + ' 300)"/>' +
+      '<g class="sleeve" transform="translate(' + px + ' 300)"><path class="slv" d="M-15 -6 Q-15 -12 0 -12 Q15 -12 15 -6 L14 62 Q0 67 -14 62 Z"/><path class="cuff" d="M-14.5 54 L14.5 54 L14 70 Q0 75 -14 70 Z"/></g>' +
+      '<circle class="hand" cx="' + px + '" cy="' + (386) + '" r="13"/></g>';
+    const ARMS = '<svg class="arms" viewBox="0 0 446 560" aria-hidden="true">' + ARM('L', 92) + ARM('R', 354) + '</svg>';
     const bb = (b) => (b.b !== undefined ? b.b : -1);
     box.classList.toggle('fit', !!fit);
     box.innerHTML =
@@ -73,6 +86,8 @@
       (fit ? '<img class="foot footL" src="' + fit.footL + '" alt="">' : '') +
       '<img class="w w-bootR' + on + '" src="img/bootR-' + key + '.png" alt="" style="left:' + h.bootR.l + '%;bottom:' + bb(h.bootR) + '%;width:' + h.bootR.w + '%">' +
       (fit ? '<img class="foot footR" src="' + fit.footR + '" alt="">' : '') +
+      (fit && fit.svg ? FACE : '') +
+      (fit && fit.svg ? ARMS : '') +
       '<img class="w w-umbrella' + on + '" src="img/umbrella-' + key + '.png" alt="" style="left:' + h.umbrella.l + '%;bottom:0;width:' + h.umbrella.w + '%">';
     return box;
   };
