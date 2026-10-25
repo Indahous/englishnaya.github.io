@@ -400,8 +400,8 @@ button.target:hover { background: #fffaf3; }
 
 /* ножки: прыжки по очереди */
 .hero-box.fit .footL, .hero-box.fit .footR, .hero-box.fit .w-bootL, .hero-box.fit .w-bootR { transition: transform 0.2s; }
-.hero-box[data-anim="cheer"] .footL, .hero-box[data-anim="cheer"] .w-bootL, .hero-box[data-anim="dance"] .footL, .hero-box[data-anim="dance"] .w-bootL, .hero-box.walkout .footL, .hero-box.walkout .w-bootL, .win-hero .hero-box .footL, .win-hero .hero-box .w-bootL { animation: stepA 0.5s ease-in-out infinite; }
-.hero-box[data-anim="cheer"] .footR, .hero-box[data-anim="cheer"] .w-bootR, .hero-box[data-anim="dance"] .footR, .hero-box[data-anim="dance"] .w-bootR, .hero-box.walkout .footR, .hero-box.walkout .w-bootR, .win-hero .hero-box .footR, .win-hero .hero-box .w-bootR { animation: stepB 0.5s ease-in-out infinite; }
+.hero-box[data-anim="cheer"] .footL, .hero-box[data-anim="cheer"] .w-bootL, .hero-box[data-anim="dance"] .footL, .hero-box[data-anim="dance"] .w-bootL, .hero-box.walkout .footL, .hero-box.walkout .w-bootL, .win-hero .hero-box .footL, .win-hero .hero-box .w-bootL { animation: none; }
+.hero-box[data-anim="cheer"] .footR, .hero-box[data-anim="cheer"] .w-bootR, .hero-box[data-anim="dance"] .footR, .hero-box[data-anim="dance"] .w-bootR, .hero-box.walkout .footR, .hero-box.walkout .w-bootR, .win-hero .hero-box .footR, .win-hero .hero-box .w-bootR { animation: none; }
 @keyframes stepA { 0%, 50%, 100% { transform: translateY(0); } 25% { transform: translateY(-9px); } }
 @keyframes stepB { 0%, 50%, 100% { transform: translateY(0); } 75% { transform: translateY(-9px); } }
 
@@ -416,3 +416,8 @@ button.target:hover { background: #fffaf3; }
 .hero-box[data-anim="nope"] .face .brows.ifs { opacity: 1; }
 .hero-box[data-anim="cheer"] .face .lid, .hero-box[data-anim="dance"] .face .lid, .hero-box.walkout .face .lid, .win-hero .hero-box .face .lid { animation: none; transform: scaleY(1); }
 .hero-box:not(.fit) .face { display: none; }
+
+/* по решению: ручки и ножки не двигаются (оживляют только мимика и тело) */
+.arm { animation: none !important; transition: none; }
+.armL { transform: rotate(var(--rL, -22deg)) !important; }
+.armR { transform: rotate(var(--rR, 22deg)) !important; }
