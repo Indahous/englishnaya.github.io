@@ -9,6 +9,13 @@ window.GAMES = [
     img: "img/preview-leaves.jpg",
     href: "/games/leaves/",
     age: "0–5 лет"
+  },
+  {
+    title: "Ёжик идёт гулять!",
+    desc: "Одень героя на осеннюю прогулку: пальто, сапожки и зонтик. Учим слова Coat, Boots, Umbrella.",
+    img: "img/preview-dress.jpg",
+    href: "/games/dress/",
+    age: "3–6 лет"
   }
 ];
 window.GAMES_SLOTS = 9;
