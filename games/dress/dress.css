@@ -404,3 +404,6 @@ button.target:hover { background: #fffaf3; }
 .hero-box[data-anim="cheer"] .footR, .hero-box[data-anim="cheer"] .w-bootR, .hero-box[data-anim="dance"] .footR, .hero-box[data-anim="dance"] .w-bootR, .hero-box.walkout .footR, .hero-box.walkout .w-bootR, .win-hero .hero-box .footR, .win-hero .hero-box .w-bootR { animation: stepB 0.5s ease-in-out infinite; }
 @keyframes stepA { 0%, 50%, 100% { transform: translateY(0); } 25% { transform: translateY(-9px); } }
 @keyframes stepB { 0%, 50%, 100% { transform: translateY(0); } 75% { transform: translateY(-9px); } }
+
+/* в пальто ручки не поднимаем (рукава остаются внизу) — оживляют мимика, тело и ножки */
+.w-coat.on ~ .arms { display: none; }
