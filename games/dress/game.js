@@ -14,11 +14,25 @@
   const HEROES = {
     hedgehog: { name: 'Ёжик',    img: 'img/hedgehog.png', ar: 446 / 560, hi: 'Привет! Я Ёжик! Помоги мне одеться на прогулку!',
       coat: { l: 11, t: 42.5, w: 78 }, bootL: { l: 28.3, w: 23, b: -2.2 }, bootR: { l: 54.2, w: 23, b: -2.2 }, umbrella: { l: 76, w: 32 },
-      fit: { body: 'img/hedgehog-clean.png', svg: true, footL: 'img/hedgehog-footL.png', footR: 'img/hedgehog-footR.png' } },
+      fit: { body: 'img/hedgehog-clean.png', footL: 'img/hedgehog-footL.png', footR: 'img/hedgehog-footR.png', dim: [446, 560],
+        eyes: { type: 'draw', ink: '#1d1526', pts: [[162, 162, 9.5, 12.5], [288, 162, 9.5, 12.5]] },
+        brows: { col: '#b88c4c', paths: ['M148 139 Q157 130 167 134', 'M284 135 Q295 131 304 140'] },
+        mouth: { ink: '#8a8566', smile: 'M204 198 Q228 212 253 198', happy: 'M206 195 Q229 232 252 195 Z', tongue: [229, 212, 10, 5.5], o: [229, 206, 8.5, 11.5] },
+        arms: 'svg' } },
     fox:      { name: 'Лисичка', img: 'img/fox.png',      ar: 451 / 600, hi: 'Привет! Я Лисичка! Помоги мне одеться на прогулку!',
-      coat: { l: 9, t: 24.6, w: 48 }, bootL: { l: 11, w: 16 }, bootR: { l: 38, w: 16 }, umbrella: { l: -26, w: 26 } },
+      coat: { l: 0.2, t: 43.7, w: 66 }, bootL: { l: 16.7, w: 15.3, b: -1 }, bootR: { l: 35.8, w: 15.3, b: -1 }, umbrella: { l: -26, w: 26 },
+      fit: { body: 'img/fox-clean.png', footL: 'img/fox-footL.png', footR: 'img/fox-footR.png', dim: [451, 600],
+        eyes: { type: 'draw', ink: '#16212b', pts: [[87, 191, 8.5, 16], [200, 192, 8.5, 16]] },
+        brows: { col: '#8a4a2a', ifs: true, paths: ['M72 160 Q88 150 103 160', 'M185 161 Q200 151 215 161'] },
+        mouth: { ink: '#16212b', smile: 'M142 222 Q157 239 173 222', happy: 'M143 221 Q158 252 174 221 Z', tongue: [158, 238, 9, 5], o: [157, 233, 8, 11] },
+        arms: { img: 'img/fox-armL.png', side: 'L', px: 105, py: 305, vars: '--rL:0deg;--uL1:70deg;--uL2:48deg;--nL:28deg' } } },
     squirrel: { name: 'Белочка', img: 'img/squirrel.png', ar: 553 / 560, hi: 'Привет! Я Белочка! Помоги мне одеться на прогулку!',
-      coat: { l: 3, t: 16.2, w: 46 }, bootL: { l: 10, w: 12 }, bootR: { l: 26, w: 12 }, umbrella: { l: -16, w: 24 } }
+      coat: { l: -4.2, t: 41.4, w: 60 }, bootL: { l: 8.7, w: 13.6, b: -1 }, bootR: { l: 23.1, w: 13.6, b: -1 }, umbrella: { l: -16, w: 24 },
+      fit: { body: 'img/squirrel-clean.png', footL: 'img/squirrel-footL.png', footR: 'img/squirrel-footR.png', dim: [553, 560],
+        eyes: { type: 'lid', fill: '#fbf6e1', ink: '#241f1c', pts: [[80, 131, 37, 41], [210, 142, 37, 42]], hp: [[80, 138, 15], [209, 151, 15]] },
+        brows: { col: '#a9763f', ifs: true, paths: ['M50 94 Q76 80 104 92', 'M186 108 Q214 94 240 108'] },
+        mouth: { ink: '#2a2523', smile: 'M112 193 Q125 209 140 197 Q155 209 168 193', happy: 'M115 195 Q140 233 166 195 Z', tongue: [140, 217, 10, 5], o: [140, 209, 8, 11] },
+        arms: null } }
   };
   const ITEMS = ['coat', 'bootL', 'bootR', 'umbrella'];
   const ROUNDS = [
@@ -64,19 +78,29 @@
     box.style.setProperty('--ar', h.ar);
     const on = allWorn ? ' on' : '';
     const fit = h.fit;
-    const FACE = '<svg class="face" viewBox="0 0 446 560" aria-hidden="true">' +
-      '<g class="brows"><path d="M148 139 Q157 130 167 134" /><path d="M284 135 Q295 131 304 140" /></g>' +
-      '<g class="eyes"><g class="eye"><ellipse cx="162" cy="162" rx="9.5" ry="12.5" fill="#1d1526"/><ellipse cx="163.5" cy="160" rx="4" ry="5.6" fill="#fff"/></g>' +
-      '<g class="eye"><ellipse cx="288" cy="162" rx="9.5" ry="12.5" fill="#1d1526"/><ellipse cx="289.5" cy="160" rx="4" ry="5.6" fill="#fff"/></g></g>' +
-      '<g class="eyes-happy"><path d="M151 167 Q162 148 173 167"/><path d="M277 167 Q288 148 299 167"/></g>' +
-      '<path class="m-smile" d="M204 198 Q228 212 253 198"/>' +
-      '<g class="m-happy"><path d="M206 195 Q229 232 252 195 Z" fill="#8a3b3b" stroke="#8a3b3b" stroke-width="3" stroke-linejoin="round"/><ellipse cx="229" cy="212" rx="10" ry="5.5" fill="#ee8f8f"/></g>' +
-      '<ellipse class="m-o" cx="229" cy="206" rx="8.5" ry="11.5" fill="#8a3b3b"/></svg>';
-    const ARM = (side, px, sgn) => '<g class="arm arm' + side + '" style="transform-origin:' + px + 'px 300px">' +
-      '<path class="skin" d="M-13 -4 Q-13 -8 0 -8 Q13 -8 13 -4 L10.5 74 Q0 79 -10.5 74 Z" transform="translate(' + px + ' 300)"/>' +
-      '<g class="sleeve" transform="translate(' + px + ' 300)"><path class="slv" d="M-15 -6 Q-15 -12 0 -12 Q15 -12 15 -6 L14 62 Q0 67 -14 62 Z"/><path class="cuff" d="M-14.5 54 L14.5 54 L14 70 Q0 75 -14 70 Z"/></g>' +
-      '<circle class="hand" cx="' + px + '" cy="' + (386) + '" r="13"/></g>';
-    const ARMS = '<svg class="arms" viewBox="0 0 446 560" aria-hidden="true">' + ARM('L', 92) + ARM('R', 354) + '</svg>';
+    let FACE = '', ARMS = '';
+    if (fit) {
+      const [fw, fh] = fit.dim, e = fit.eyes, m = fit.mouth, br = fit.brows;
+      const mi = m.ink;
+      FACE = '<svg class="face" viewBox="0 0 ' + fw + ' ' + fh + '" aria-hidden="true">';
+      FACE += '<g class="brows' + (br.ifs ? ' ifs' : '') + '" style="stroke:' + br.col + '">' + br.paths.map((d) => '<path d="' + d + '"/>').join('') + '</g>';
+      if (e.type === 'draw') {
+        FACE += '<g class="eyes">' + e.pts.map((p) => '<g class="eye"><ellipse cx="' + p[0] + '" cy="' + p[1] + '" rx="' + p[2] + '" ry="' + p[3] + '" fill="' + e.ink + '"/><ellipse cx="' + (p[0] + 1.5) + '" cy="' + (p[1] - 2) + '" rx="' + (p[2] * 0.42) + '" ry="' + (p[3] * 0.45) + '" fill="#fff"/></g>').join('') + '</g>';
+      } else {
+        FACE += '<g class="lids">' + e.pts.map((p) => '<ellipse class="lid" cx="' + p[0] + '" cy="' + p[1] + '" rx="' + p[2] + '" ry="' + p[3] + '" fill="' + e.fill + '"/>').join('') + '</g>';
+      }
+      const hp = e.type === 'draw' ? e.pts.map((p) => [p[0], p[1], 11]) : e.hp;
+      FACE += '<g class="eyes-happy" style="stroke:' + e.ink + '">' + hp.map((p) => '<path d="M' + (p[0] - p[2]) + ' ' + (p[1] + 5) + ' Q' + p[0] + ' ' + (p[1] - 14) + ' ' + (p[0] + p[2]) + ' ' + (p[1] + 5) + '"/>').join('') + '</g>';
+      FACE += '<path class="m-smile" d="' + m.smile + '" style="stroke:' + mi + '"/>';
+      FACE += '<g class="m-happy"><path d="' + m.happy + '" fill="#8a3b3b" stroke="#8a3b3b" stroke-width="3" stroke-linejoin="round"/><ellipse cx="' + m.tongue[0] + '" cy="' + m.tongue[1] + '" rx="' + m.tongue[2] + '" ry="' + m.tongue[3] + '" fill="#ee8f8f"/></g>';
+      FACE += '<ellipse class="m-o" cx="' + m.o[0] + '" cy="' + m.o[1] + '" rx="' + m.o[2] + '" ry="' + m.o[3] + '" fill="#8a3b3b"/></svg>';
+      const ARM = (side, px) => '<g class="arm arm' + side + '" style="transform-origin:' + px + 'px 300px">' +
+        '<path class="skin" d="M-13 -4 Q-13 -8 0 -8 Q13 -8 13 -4 L10.5 74 Q0 79 -10.5 74 Z" transform="translate(' + px + ' 300)"/>' +
+        '<g class="sleeve" transform="translate(' + px + ' 300)"><path class="slv" d="M-15 -6 Q-15 -12 0 -12 Q15 -12 15 -6 L14 62 Q0 67 -14 62 Z"/><path class="cuff" d="M-14.5 54 L14.5 54 L14 70 Q0 75 -14 70 Z"/></g>' +
+        '<circle class="hand" cx="' + px + '" cy="386" r="13"/></g>';
+      if (fit.arms === 'svg') ARMS = '<svg class="arms" viewBox="0 0 ' + fw + ' ' + fh + '" aria-hidden="true">' + ARM('L', 92) + ARM('R', 354) + '</svg>';
+      else if (fit.arms) ARMS = '<svg class="arms behind" viewBox="0 0 ' + fw + ' ' + fh + '" style="' + fit.arms.vars + '" aria-hidden="true"><g class="arm arm' + fit.arms.side + '" style="transform-origin:' + fit.arms.px + 'px ' + fit.arms.py + 'px"><image href="' + fit.arms.img + '" x="0" y="0" width="' + fw + '" height="' + fh + '"/></g></svg>';
+    }
     const bb = (b) => (b.b !== undefined ? b.b : -1);
     box.classList.toggle('fit', !!fit);
     box.innerHTML =
@@ -86,8 +110,8 @@
       (fit ? '<img class="foot footL" src="' + fit.footL + '" alt="">' : '') +
       '<img class="w w-bootR' + on + '" src="img/bootR-' + key + '.png" alt="" style="left:' + h.bootR.l + '%;bottom:' + bb(h.bootR) + '%;width:' + h.bootR.w + '%">' +
       (fit ? '<img class="foot footR" src="' + fit.footR + '" alt="">' : '') +
-      (fit && fit.svg ? FACE : '') +
-      (fit && fit.svg ? ARMS : '') +
+      FACE +
+      ARMS +
       '<img class="w w-umbrella' + on + '" src="img/umbrella-' + key + '.png" alt="" style="left:' + h.umbrella.l + '%;bottom:0;width:' + h.umbrella.w + '%">';
     return box;
   };
