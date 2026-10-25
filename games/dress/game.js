@@ -20,7 +20,7 @@
         mouth: { ink: '#8a8566', smile: 'M204 198 Q228 212 253 198', happy: 'M206 195 Q229 232 252 195 Z', tongue: [229, 212, 10, 5.5], o: [229, 206, 8.5, 11.5] },
         arms: 'svg' } },
     fox:      { name: 'Лисичка', img: 'img/fox.png',      ar: 451 / 600, hi: 'Привет! Я Лисичка! Помоги мне одеться на прогулку!',
-      coat: { l: 0.2, t: 43.7, w: 66 }, bootL: { l: 16.7, w: 15.3, b: -1 }, bootR: { l: 35.8, w: 15.3, b: -1 }, umbrella: { l: -26, w: 26 },
+      coat: { l: 0.2, t: 43.7, w: 66 }, bootL: { l: 16.7, w: 15.3, b: -1 }, bootR: { l: 35.8, w: 15.3, b: -1 }, umbrella: { l: -11, w: 26 },
       fit: { body: 'img/fox-clean.png', footL: 'img/fox-footL.png', footR: 'img/fox-footR.png', dim: [451, 600],
         eyes: { type: 'draw', ink: '#16212b', pts: [[87, 191, 8.5, 16], [200, 192, 8.5, 16]] },
         brows: { col: '#8a4a2a', ifs: true, paths: ['M72 160 Q88 150 103 160', 'M185 161 Q200 151 215 161'] },
