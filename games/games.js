@@ -9,13 +9,6 @@ window.GAMES = [
     img: "img/preview-leaves.jpg",
     href: "/games/leaves/",
     age: "0–5 лет"
-  },
-  {
-    title: "Who Did It? Passive Voice",
-    desc: "Детективная игра про пассивный залог: Level 1 «Library» и Level 2 «Derry».",
-    img: "img/preview-passive.jpg",
-    href: "/passive-voice/",
-    age: "от 14 лет · B2"
   }
 ];
 window.GAMES_SLOTS = 9;
