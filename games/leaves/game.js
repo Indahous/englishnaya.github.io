@@ -27,23 +27,24 @@
   const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,2 15,9 22,9.3 16.5,14 18.2,21 12,17.2 5.8,21 7.5,14 2,9.3 9,9" stroke-linejoin="round"/></svg>';
   const STACK_POS = [[20, 30, -18], [40, 27, 6], [57, 31, 16], [30, 35, -6], [47, 36, 10]];
 
-  /* ---------- Озвучка слов (английский голос браузера) ---------- */
-  let voice = null;
-  const pickVoice = () => {
-    if (!('speechSynthesis' in window)) return;
-    const vs = window.speechSynthesis.getVoices() || [];
-    voice = vs.find((v) => /^en[-_]US/i.test(v.lang) && /female|samantha|zira|google us|aria|jenny/i.test(v.name))
-      || vs.find((v) => /^en[-_]US/i.test(v.lang)) || vs.find((v) => /^en/i.test(v.lang)) || null;
-  };
-  if ('speechSynthesis' in window) { pickVoice(); window.speechSynthesis.onvoiceschanged = pickVoice; }
+  /* ---------- Озвучка слов (записанные голосовые файлы) ---------- */
+  const VOICE = {};
+  ['red', 'yellow', 'green', 'orange'].forEach((k) => {
+    const a = new Audio('voice/' + k + '.mp3');
+    a.preload = 'auto';
+    VOICE[k] = a;
+  });
+  let current = null;
   const speak = (word) => {
-    if (!A.sfx || !('speechSynthesis' in window)) return;
+    if (!A.sfx) return;
+    const a = VOICE[String(word).toLowerCase()];
+    if (!a) return;
     try {
-      const u = new SpeechSynthesisUtterance(word);
-      u.lang = 'en-US'; u.rate = 0.75; u.pitch = 1.2; u.volume = 1;
-      if (voice) u.voice = voice;
-      window.speechSynthesis.cancel();
-      window.speechSynthesis.speak(u);
+      if (current && current !== a) { current.pause(); }
+      a.currentTime = 0;
+      current = a;
+      const pr = a.play();
+      if (pr && pr.catch) pr.catch(() => { /* автозапуск мог быть заблокирован */ });
     } catch (e) { /* озвучка необязательна */ }
   };
 
