@@ -13,7 +13,8 @@
   /* Положение одежды на героях (в процентах от картинки героя) */
   const HEROES = {
     hedgehog: { name: 'Ёжик',    img: 'img/hedgehog.png', ar: 446 / 560, hi: 'Привет! Я Ёжик! Помоги мне одеться на прогулку!',
-      coat: { l: 16.5, t: 9, w: 67 }, bootL: { l: 25, w: 18 }, bootR: { l: 60, w: 18 }, umbrella: { l: 76, w: 32 } },
+      coat: { l: 11, t: 42.5, w: 78 }, bootL: { l: 28.3, w: 23, b: -2.2 }, bootR: { l: 54.2, w: 23, b: -2.2 }, umbrella: { l: 76, w: 32 },
+      fit: { body: 'img/hedgehog-body.png', footL: 'img/hedgehog-footL.png', footR: 'img/hedgehog-footR.png' } },
     fox:      { name: 'Лисичка', img: 'img/fox.png',      ar: 451 / 600, hi: 'Привет! Я Лисичка! Помоги мне одеться на прогулку!',
       coat: { l: 9, t: 24.6, w: 48 }, bootL: { l: 11, w: 16 }, bootR: { l: 38, w: 16 }, umbrella: { l: -26, w: 26 } },
     squirrel: { name: 'Белочка', img: 'img/squirrel.png', ar: 553 / 560, hi: 'Привет! Я Белочка! Помоги мне одеться на прогулку!',
@@ -62,11 +63,16 @@
     box.style.setProperty('--HH', H + 'px');
     box.style.setProperty('--ar', h.ar);
     const on = allWorn ? ' on' : '';
+    const fit = h.fit;
+    const bb = (b) => (b.b !== undefined ? b.b : -1);
+    box.classList.toggle('fit', !!fit);
     box.innerHTML =
-      '<img class="hero-img" src="' + h.img + '" alt="">' +
+      '<img class="hero-img" src="' + (fit ? fit.body : h.img) + '" alt="">' +
       '<img class="w w-coat' + on + '" src="img/coat-' + key + '.png" alt="" style="left:' + h.coat.l + '%;top:' + h.coat.t + '%;width:' + h.coat.w + '%">' +
-      '<img class="w w-bootL' + on + '" src="img/bootL-' + key + '.png" alt="" style="left:' + h.bootL.l + '%;bottom:-1%;width:' + h.bootL.w + '%">' +
-      '<img class="w w-bootR' + on + '" src="img/bootR-' + key + '.png" alt="" style="left:' + h.bootR.l + '%;bottom:-1%;width:' + h.bootR.w + '%">' +
+      '<img class="w w-bootL' + on + '" src="img/bootL-' + key + '.png" alt="" style="left:' + h.bootL.l + '%;bottom:' + bb(h.bootL) + '%;width:' + h.bootL.w + '%">' +
+      (fit ? '<img class="foot footL" src="' + fit.footL + '" alt="">' : '') +
+      '<img class="w w-bootR' + on + '" src="img/bootR-' + key + '.png" alt="" style="left:' + h.bootR.l + '%;bottom:' + bb(h.bootR) + '%;width:' + h.bootR.w + '%">' +
+      (fit ? '<img class="foot footR" src="' + fit.footR + '" alt="">' : '') +
       '<img class="w w-umbrella' + on + '" src="img/umbrella-' + key + '.png" alt="" style="left:' + h.umbrella.l + '%;bottom:0;width:' + h.umbrella.w + '%">';
     return box;
   };
