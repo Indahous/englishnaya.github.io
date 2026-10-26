@@ -16,6 +16,13 @@ window.GAMES = [
     img: "img/preview-dress.jpg",
     href: "/games/dress/",
     age: "3–6 лет"
+  },
+  {
+    title: "Ёжик собирает урожай!",
+    desc: "Собери в корзинку нужное количество яблок и грибов. Учим числа и фразы I have two apples.",
+    img: "img/preview-harvest.jpg",
+    href: "/games/harvest/",
+    age: "3–6 лет"
   }
 ];
 window.GAMES_SLOTS = 9;

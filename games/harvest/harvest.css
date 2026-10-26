@@ -1,0 +1,290 @@
+/* Ёжик собирает урожай! — стили в палитре и шрифте englishnayakids.ru */
+:root {
+  --tilda-pink: #f2a4cf;
+  --tilda-pink-dark: #d18ab8;
+  --tilda-beige: #f2f0c2;
+  --tilda-light-beige: #f7f6ea;
+  --tilda-dark: #2c3e50;
+  --white: #ffffff;
+  --text: #333;
+  --bar: 92px;
+  --W: 200px;       /* ширина героя с корзинкой */
+  --LS: 100px;      /* размер листа */
+  --lift: 28px;     /* отступ героя от низа */
+  --logo-h: calc(var(--bar) + 22px);
+}
+@media (max-width: 560px) { :root { --bar: 80px; --logo-h: calc(var(--bar) - 12px); } }
+
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body { margin: 0; height: 100%; }
+body {
+  font-family: 'Unbounded', sans-serif;
+  color: var(--tilda-dark);
+  background: var(--tilda-beige);
+  overflow: hidden;
+  user-select: none; -webkit-user-select: none;
+  line-height: 1.4;
+}
+.hidden { display: none !important; }
+img { -webkit-user-drag: none; user-drag: none; }
+button, a { font-family: inherit; }
+button:focus-visible, a:focus-visible { outline: 3px solid var(--tilda-dark); outline-offset: 3px; }
+
+/* ---------- Фон ---------- */
+.bg { position: fixed; inset: 0; z-index: 0; }
+.bg svg { width: 100%; height: 100%; display: block; }
+.cloud { animation: drift 40s ease-in-out infinite alternate; }
+.cloud.c2 { animation-duration: 55s; }
+.cloud.c3 { animation-duration: 48s; animation-direction: alternate-reverse; }
+@keyframes drift { from { transform: translateX(0); } to { transform: translateX(90px); } }
+
+/* ---------- Верхняя панель ---------- */
+.topbar {
+  position: fixed; top: 0; left: 0; right: 0; height: var(--bar); z-index: 30; pointer-events: none;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 8px;
+  padding: 6px max(12px, env(safe-area-inset-right)) 4px max(12px, env(safe-area-inset-left));
+}
+.topbar > * { pointer-events: auto; }
+.logo { grid-column: 1; height: var(--logo-h); width: auto; justify-self: start; align-self: start; margin-top: -2px; filter: drop-shadow(0 0 5px rgba(255,255,255,0.9)) drop-shadow(0 2px 4px rgba(0,0,0,0.15)); pointer-events: none; }
+.tools { grid-column: 3; justify-self: end; display: flex; gap: 8px; align-items: center; }
+.tbtn {
+  width: 44px; height: 44px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center;
+  background: var(--white); color: var(--tilda-pink); border: 2px solid var(--tilda-pink); cursor: pointer; padding: 0;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1); transition: all 0.3s ease; text-decoration: none; font-weight: 600; font-size: 0.8rem;
+}
+.tbtn svg { width: 24px; height: 24px; }
+.tbtn:hover { background: var(--tilda-pink); color: var(--white); transform: translateY(-2px); }
+.tbtn .slash { display: none; }
+.tbtn[aria-pressed="false"] { color: #b9aeb4; border-color: #d9d2d6; }
+.tbtn[aria-pressed="false"] .slash { display: block; }
+.tbtn.wide { width: auto; border-radius: 25px; padding: 0 16px; }
+@media (max-width: 560px) {
+  .tbtn { width: 38px; height: 38px; }
+  .tbtn svg { width: 20px; height: 20px; }
+  .tbtn.wide { padding: 0 10px; font-size: 0.68rem; }
+  .tools { gap: 5px; }
+}
+
+/* Слово-цвет сверху */
+.target {
+  grid-column: 2; justify-self: center; display: flex; align-items: center; gap: 10px;
+  background: var(--white); border: 2px solid var(--tilda-pink); border-radius: 24px;
+  padding: 5px 14px 5px 10px; box-shadow: 0 3px 10px rgba(0,0,0,0.14);
+}
+.target.pop { animation: bannerpop 0.6s ease; }
+@keyframes bannerpop { 0% { transform: scale(0.8); } 55% { transform: scale(1.1); } 100% { transform: scale(1); } }
+.t-leaf { height: clamp(40px, 7.5vmin, 62px); width: auto; }
+.t-info { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; }
+.t-word { font-weight: 700; font-size: clamp(1.3rem, 3.2vmin + 0.5rem, 2.1rem); line-height: 1.05; color: var(--tilda-dark); }
+.t-stars { display: flex; gap: 3px; }
+.t-stars svg { width: clamp(14px, 2.4vmin, 20px); height: auto; fill: #ece6b8; stroke: #ddd39c; stroke-width: 1.2; transition: transform 0.3s; }
+.t-stars svg.on { fill: #f4b942; stroke: #e0952a; transform: scale(1.15); }
+.t-round { font-size: 0.7rem; font-weight: 600; color: var(--tilda-pink); align-self: flex-start; }
+@media (max-width: 560px) { .t-round { display: none; } .target { gap: 6px; padding: 4px 10px 4px 6px; } }
+
+/* ---------- Экраны и панели ---------- */
+.screen { position: fixed; inset: 0; z-index: 10; display: flex; align-items: center; justify-content: center;
+  padding: calc(var(--bar) + 4px) 14px 14px; overflow-y: auto; }
+#screen-play { padding: 0; overflow: hidden; z-index: 5; }
+.panel {
+  width: min(960px, 100%); max-height: 100%; background: rgba(255,255,255,0.88); border: 2px solid var(--tilda-pink);
+  border-radius: 24px; padding: clamp(14px, 3vmin, 30px); text-align: center; box-shadow: 0 8px 24px rgba(0,0,0,0.14);
+  backdrop-filter: blur(3px);
+}
+.game-title {
+  margin: 0 0 6px; color: var(--tilda-pink); font-weight: 700; line-height: 1.15; font-size: clamp(1.4rem, 5.2vmin + 0.4rem, 2.8rem);
+  text-shadow: 0 2px 0 rgba(255,255,255,0.8);
+}
+.sub { margin: 4px 0 12px; color: var(--tilda-dark); font-weight: 600; font-size: clamp(1rem, 2.6vmin + 0.3rem, 1.5rem); }
+.sub.big { color: var(--tilda-pink); font-weight: 700; font-size: clamp(1.3rem, 4.6vmin + 0.2rem, 2.4rem); }
+.note { font-size: 0.78rem; margin: 12px 0 0; color: var(--tilda-dark); opacity: 0.8; }
+
+.btn {
+  display: inline-block; background: var(--white); color: var(--tilda-pink); padding: 12px 28px; margin: 8px 5px;
+  border-radius: 25px; text-decoration: none; font-weight: 600; font-size: clamp(0.9rem, 2vmin + 0.4rem, 1.15rem);
+  border: 2px solid var(--tilda-pink); cursor: pointer; transition: all 0.3s ease; box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+.btn:hover { background: var(--tilda-pink); color: var(--white); transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+.btn.primary { background: var(--tilda-pink); color: var(--white); animation: nudge 2.4s ease-in-out infinite; }
+.btn.primary:hover { background: var(--tilda-pink-dark); border-color: var(--tilda-pink-dark); }
+@keyframes nudge { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; margin-top: 6px; }
+
+/* ---------- Выбор героя ---------- */
+.cards { display: flex; flex-wrap: wrap; justify-content: center; gap: clamp(8px, 2vmin, 22px); }
+.card {
+  flex: 1 1 150px; max-width: 250px; background: var(--tilda-light-beige); border: 2px solid var(--tilda-pink); border-radius: 22px;
+  padding: 12px 8px 12px; cursor: pointer; display: flex; flex-direction: column; align-items: center; gap: 6px;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.08); transition: transform 0.3s ease, background 0.3s, box-shadow 0.3s; font-weight: 600;
+  color: var(--tilda-dark); font-size: clamp(1rem, 2.4vmin + 0.3rem, 1.4rem);
+}
+.card:hover, .card:focus-visible { transform: translateY(-6px); background: var(--white); box-shadow: 0 8px 18px rgba(0,0,0,0.15); }
+.card .pic { height: clamp(110px, 26vmin, 220px); display: flex; align-items: flex-end; justify-content: center; }
+.card img { max-height: 100%; width: auto; max-width: 100%; transform-origin: 50% 100%; animation: idle 3.4s ease-in-out infinite; animation-delay: var(--d, 0s); }
+.card:hover img { animation: wave 0.7s ease-in-out infinite; }
+.card.chosen { animation: chosen 0.6s ease; }
+@keyframes chosen { 0% { transform: scale(1); } 40% { transform: scale(1.12) rotate(-3deg); } 100% { transform: scale(1); } }
+@media (max-height: 640px) { .note { display: none; } .game-title br { display: none; } }
+
+/* ---------- Анимации героев ---------- */
+@keyframes idle {
+  0%, 100% { transform: scale(1, 1) rotate(-1.2deg); }
+  50% { transform: scale(1.03, 0.975) rotate(1.2deg); }
+}
+@keyframes wave { 0%, 100% { transform: rotate(-5deg) scale(1.03); } 50% { transform: rotate(5deg) scale(1.03) translateY(-6px); } }
+@keyframes runL { 0%, 100% { transform: rotate(-7deg) translateY(0); } 50% { transform: rotate(-7deg) translateY(-8px); } }
+@keyframes runR { 0%, 100% { transform: rotate(7deg) translateY(0); } 50% { transform: rotate(7deg) translateY(-8px); } }
+@keyframes cheer {
+  0% { transform: scale(1, 1); } 22% { transform: translateY(-30px) scale(0.94, 1.1); }
+  48% { transform: translateY(0) scale(1.1, 0.9); } 68% { transform: translateY(-12px) scale(0.98, 1.04); }
+  100% { transform: scale(1, 1); }
+}
+@keyframes nope { 0%, 100% { transform: rotate(0); } 18% { transform: rotate(-9deg); } 40% { transform: rotate(9deg); } 62% { transform: rotate(-6deg); } 82% { transform: rotate(4deg); } }
+@keyframes dance { 0%, 100% { transform: rotate(-8deg) translateY(0) scale(1.02, 0.98); } 50% { transform: rotate(8deg) translateY(-22px) scale(0.98, 1.04); } }
+@keyframes bump { 0%, 100% { transform: scale(1); } 40% { transform: scale(1.07, 0.94); } 70% { transform: scale(0.97, 1.04); } }
+
+/* ---------- Правила ---------- */
+.rules-top { display: flex; align-items: flex-end; justify-content: center; gap: 12px; }
+.rules-hero img { height: clamp(90px, 20vmin, 170px); width: auto; transform-origin: 50% 100%; animation: wave 1.1s ease-in-out infinite; }
+.bubble {
+  position: relative; background: var(--tilda-pink); color: var(--white); font-weight: 700; padding: 12px 20px; border-radius: 22px;
+  font-size: clamp(1rem, 2.6vmin + 0.3rem, 1.6rem); margin-bottom: 22px;
+}
+.bubble::before { content: ''; position: absolute; left: -12px; bottom: 14px; border: 8px solid transparent; border-right: 14px solid var(--tilda-pink); }
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; counter-reset: s; }
+.steps li { background: var(--tilda-light-beige); border: 1px solid var(--tilda-pink); border-radius: 16px; padding: 10px 10px 12px; position: relative; counter-increment: s; }
+.steps li::before {
+  content: counter(s); position: absolute; top: -10px; left: -6px; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--tilda-dark); color: var(--white); font-weight: 700; font-size: 0.85rem; display: flex; align-items: center; justify-content: center;
+}
+.steps p { margin: 8px 0 0; font-size: clamp(0.72rem, 1.5vmin + 0.35rem, 0.95rem); font-weight: 500; }
+.step-pic { height: clamp(70px, 14vmin, 110px); display: flex; align-items: center; justify-content: center; position: relative; }
+.mini-target { display: flex; align-items: center; gap: 8px; background: var(--white); border: 2px solid var(--tilda-pink); border-radius: 18px; padding: 4px 12px 4px 8px; }
+.mini-target img { height: clamp(32px, 7vmin, 52px); } .mini-target b { font-size: clamp(1.1rem, 3vmin + 0.2rem, 1.7rem); }
+.step-pic.fall img { position: absolute; height: clamp(34px, 8vmin, 56px); top: 0; animation: fall 3s ease-in infinite; }
+.step-pic.fall .f1 { left: 18%; animation-delay: 0s; } .step-pic.fall .f2 { left: 44%; animation-delay: 1s; } .step-pic.fall .f3 { left: 68%; animation-delay: 2s; }
+/* ---------- Победа ---------- */
+#screen-win { z-index: 12; }
+#confetti { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 11; }
+.win { position: relative; z-index: 12; }
+.win-hero { --wh: clamp(130px, 26vmin, 230px); --W: var(--wh); position: relative; width: var(--wh); height: calc(var(--wh) * 1.5); margin: 0 auto; }
+.win-hero .sprite-pos { bottom: 0; }
+.win-hero .sprite { animation: dance 0.8s ease-in-out infinite; }
+.win-stars { display: flex; justify-content: center; gap: 10px; margin: 4px 0 8px; }
+.win-stars svg { width: clamp(30px, 7vmin, 56px); fill: #f4b942; stroke: #e0952a; stroke-width: 1.2; animation: bump 1.1s ease-in-out infinite; }
+.win-stars svg:nth-child(2) { animation-delay: 0.15s; } .win-stars svg:nth-child(3) { animation-delay: 0.3s; } .win-stars svg:nth-child(4) { animation-delay: 0.45s; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cloud, .btn.primary, .card img, .rules-hero img { animation: none; }
+}
+
+/* искры */
+.fx { position: fixed; inset: 0; pointer-events: none; z-index: 40; overflow: hidden; }
+.spark { position: absolute; width: 18px; height: 18px; margin: -9px 0 0 -9px; animation: spark 0.9s ease-out forwards; }
+.spark svg { width: 100%; height: 100%; fill: #f4b942; stroke: #fff; stroke-width: 1.4; }
+@keyframes spark { 0% { transform: translate(0, 0) scale(0.2) rotate(0); opacity: 1; } 100% { transform: translate(var(--dx), var(--dy)) scale(1.3) rotate(180deg); opacity: 0; } }
+
+@media (prefers-reduced-motion: reduce) { .face .eye, .arm, .footL, .footR, .w-bootL, .w-bootR, .hero-box, .win-rain, .rain, .pd { animation: none; } }
+
+
+/* =====================================================================
+   Ёжик собирает урожай!
+   ===================================================================== */
+:root { --FS: 80px; }
+.t-stars + .t-round { margin-left: 2px; }
+.target { gap: 8px; padding: 6px 14px; }
+button.target { font-family: inherit; color: var(--tilda-dark); cursor: pointer; }
+button.target:hover { background: #fffaf3; }
+.t-speak { width: 22px; height: 22px; color: var(--tilda-pink); flex: none; }
+.t-round { align-self: center; }
+@media (max-width: 560px) { .t-speak { display: none; } .t-round { display: none; } .target { padding: 5px 10px; } }
+
+/* правила */
+.mini-phrase { background: var(--white); border: 2px solid var(--tilda-pink); border-radius: 18px; padding: 8px 14px; font-weight: 700; color: var(--tilda-dark); font-size: clamp(0.8rem, 2vmin + 0.2rem, 1.15rem); }
+.step-pic.drag { position: relative; }
+.step-pic.drag .dh { position: absolute; right: 8%; bottom: 0; height: 100%; width: auto; }
+.step-pic.drag .dg { position: absolute; left: 6%; top: 12%; height: 42%; width: auto; z-index: 2; animation: dragdemo 2.8s ease-in-out infinite; }
+.step-pic.drag .d2 { left: 24%; top: 40%; animation-delay: 0.5s; }
+@keyframes dragdemo { 0%, 12% { transform: translate(0, 0); } 55%, 80% { transform: translate(clamp(50px, 11vmin, 90px), -2px) scale(0.8); } 100% { transform: translate(0, 0); } }
+.mini-stars { display: flex; gap: 6px; }
+.mini-stars::before { content: '★★★'; font-size: clamp(1.6rem, 5vmin, 2.6rem); color: #f4b942; letter-spacing: 4px; text-shadow: 0 2px 0 #e0952a; }
+
+/* поле */
+#screen-play { align-items: stretch; padding: 0; overflow: hidden; z-index: 5; }
+.field { position: absolute; inset: 0; overflow: hidden; touch-action: none; }
+.phrase {
+  position: absolute; left: 50%; top: calc(var(--bar) + 2px); transform: translateX(-50%); z-index: 7; white-space: nowrap; max-width: 96vw;
+  background: rgba(255,255,255,0.96); border: 3px solid var(--tilda-pink); border-radius: 28px; padding: clamp(8px, 1.8vmin, 14px) clamp(18px, 4vmin, 40px);
+  box-shadow: 0 6px 18px rgba(0,0,0,0.16); animation: bannerpop 0.6s ease;
+}
+.ph-text { font-weight: 700; color: var(--tilda-dark); font-size: clamp(1.15rem, 3.6vmin + 0.5rem, 2.4rem); line-height: 1.1; }
+.phrase.pop { animation: bannerpop 0.6s ease; }
+@media (max-width: 420px) { .ph-text { font-size: 1.12rem; } }
+
+.meadow { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.fruit {
+  position: absolute; left: 0; top: 0; width: var(--FS); height: var(--FS); padding: 0; border: 0; background: none; cursor: grab;
+  pointer-events: auto; touch-action: none; user-select: none; -webkit-user-select: none; transition: transform 0.2s ease, opacity 0.5s;
+  animation: sway 3.6s ease-in-out infinite; animation-delay: var(--d, 0s);
+}
+.fruit img { width: 100%; height: 100%; object-fit: contain; display: block; pointer-events: none; filter: drop-shadow(0 4px 3px rgba(0,0,0,0.25)); }
+@keyframes sway { 0%, 100% { translate: 0 0; } 50% { translate: 0 -3px; } }
+.fruit:hover { transform: translateY(-4px) scale(1.06); }
+.fruit.dragging { transition: none; z-index: 60; cursor: grabbing; animation: none; }
+.fruit.back { transition: transform 0.4s cubic-bezier(.3,1.6,.5,1); }
+.fruit.flying { transition: transform 0.5s cubic-bezier(.4,0,.2,1); z-index: 60; pointer-events: none; animation: none; }
+.fruit.gone { opacity: 0; pointer-events: none; }
+.fruit.hint img { animation: glow 0.9s ease-in-out infinite alternate; }
+.fruit.wobble img { animation: nope 0.55s ease-in-out 1; }
+.fruit:focus-visible { outline: 3px solid var(--tilda-pink); border-radius: 18px; }
+@keyframes glow { from { filter: drop-shadow(0 0 0 rgba(242,164,207,0)) drop-shadow(0 4px 3px rgba(0,0,0,0.25)); } to { filter: drop-shadow(0 0 16px #f2a4cf) drop-shadow(0 0 6px #fff) drop-shadow(0 4px 3px rgba(0,0,0,0.25)); } }
+
+/* герой с корзинкой */
+.hero { position: absolute; left: 50%; bottom: var(--lift); width: var(--W); height: calc(var(--W) * 1.5); margin-left: calc(var(--W) / -2); z-index: 3; pointer-events: none; }
+.sprite-pos { position: absolute; left: 0; right: 0; bottom: calc(var(--W) * var(--bot, 0.1)); display: flex; justify-content: center; }
+.sprite { width: calc(var(--W) * var(--cw, 0.8)); transform-origin: 50% 100%; animation: idle 3.2s ease-in-out infinite; }
+.hero .basket, .win-hero .basket { position: absolute; left: 0; bottom: 0; width: 100%; transform-origin: 50% 100%; }
+.hero .basket > img, .win-hero .basket > img { width: 100%; display: block; }
+.hero .b-back > img, .win-hero .b-back > img { filter: drop-shadow(0 4px 4px rgba(0,0,0,0.2)); }
+.hero .b-front > img, .win-hero .b-front > img { clip-path: polygon(0 30%, 3% 36%, 8% 46%, 18% 55%, 33% 60%, 50% 62%, 67% 60%, 82% 55%, 92% 46%, 97% 36%, 100% 30%, 100% 100%, 0 100%); }
+.stack { position: absolute; left: 0; bottom: 0; width: 100%; height: var(--W); }
+.stack img { position: absolute; width: 27%; height: auto; filter: drop-shadow(0 2px 2px rgba(0,0,0,0.25)); animation: land 0.45s ease-out; }
+@keyframes land { 0% { transform: translateY(-30px) scale(1.4); opacity: 0.4; } 100% { transform: none; opacity: 1; } }
+.stack.clear img { transition: opacity 0.4s, transform 0.4s; opacity: 0; transform: translateY(-14px) scale(0.8); }
+.hero .basket.bump, .hero .stack.bump { animation: bump 0.4s ease-out; }
+.hero[data-anim="cheer"] .sprite { animation: cheer 0.7s ease-out 1; }
+.hero[data-anim="nope"] .sprite { animation: nope 0.55s ease-in-out 1; }
+.hero[data-anim="dance"] .sprite, .win-hero .sprite { animation: dance 0.8s ease-in-out infinite; }
+
+/* ёжик с мимикой */
+.hero-box { position: relative; width: 100%; aspect-ratio: 446 / 560; }
+.hero-img { position: absolute; left: 0; top: 0; width: 100%; height: 100%; display: block; filter: drop-shadow(0 6px 5px rgba(0,0,0,0.16)); pointer-events: none; }
+.face { position: absolute; left: 0; top: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+.face .brows path { fill: none; stroke: inherit; stroke-width: 3.2; stroke-linecap: round; }
+.face .eyes-happy path { fill: none; stroke: inherit; stroke-width: 4.5; stroke-linecap: round; }
+.face .m-smile { fill: none; stroke: #8a8566; stroke-width: 3.6; stroke-linecap: round; }
+.face .eyes-happy, .face .m-happy, .face .m-o { display: none; }
+.face .eye, .face .brows { transform-box: fill-box; transform-origin: 50% 50%; }
+.face .eye { animation: blink 4.6s infinite; }
+@keyframes blink { 0%, 90%, 100% { transform: scaleY(1); } 94% { transform: scaleY(0.08); } }
+.face .brows { transition: transform 0.15s; }
+.hero[data-anim="nope"] .face .eye { animation: none; transform: scale(1.18); }
+.hero[data-anim="nope"] .face .brows { transform: translateY(-9px); }
+.hero[data-anim="nope"] .face .m-smile { display: none; }
+.hero[data-anim="nope"] .face .m-o { display: inline; }
+.hero[data-anim="cheer"] .face .eyes, .hero[data-anim="dance"] .face .eyes, .win-hero .face .eyes { display: none; }
+.hero[data-anim="cheer"] .face .eyes-happy, .hero[data-anim="dance"] .face .eyes-happy, .win-hero .face .eyes-happy { display: inline; }
+.hero[data-anim="cheer"] .face .m-smile, .hero[data-anim="dance"] .face .m-smile, .win-hero .face .m-smile { display: none; }
+.hero[data-anim="cheer"] .face .m-happy, .hero[data-anim="dance"] .face .m-happy, .win-hero .face .m-happy { display: inline; }
+.hero[data-anim="cheer"] .face .brows, .hero[data-anim="dance"] .face .brows, .win-hero .face .brows { transform: translateY(-4px); }
+
+/* победа */
+.win-hero { --W: clamp(150px, 30vmin, 250px); position: relative; width: var(--W); height: calc(var(--W) * 1.5); margin: 0 auto 4px; }
+.win-hero .sprite-pos { bottom: calc(var(--W) * var(--bot, 0.1)); }
+.win-hero .stack img { animation: none; }
+.win-stars svg:nth-child(4) { display: none; }
+.story { margin: 2px 0 0; font-size: clamp(0.72rem, 1.4vmin + 0.35rem, 0.9rem); }
+.story a { color: var(--tilda-pink-dark); font-weight: 600; }
+#screen-win .panel { background: rgba(255,255,255,0.9); }
+.win-stars { display: flex; justify-content: center; gap: 10px; margin: 4px 0 8px; }
+@media (prefers-reduced-motion: reduce) { .fruit, .sprite, .face .eye, .cloud { animation: none; } }

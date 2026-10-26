@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Ёжик собирает урожай! — englishnayakids.ru</title>
+  <meta name="description" content="Игра для детей 3–6 лет: помоги Ёжику собрать в корзинку нужное количество яблок и грибов и выучи фразы I have two apples, I have three mushrooms." />
+
+  <!-- Google Fonts: Unbounded (как на главной) -->
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&subset=latin,cyrillic" rel="stylesheet">
+  <link rel="stylesheet" href="harvest.css" />
+</head>
+<body data-screen="rules">
+
+  <!-- Фон: осенняя полянка -->
+  <div class="bg" aria-hidden="true">
+    <svg viewBox="0 0 1600 900" preserveAspectRatio="xMidYMax slice" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#cfe6f0"/><stop offset="0.55" stop-color="#f6ecd2"/><stop offset="1" stop-color="#f9dfb8"/>
+        </linearGradient>
+        <radialGradient id="sun" cx="50%" cy="50%" r="50%">
+          <stop offset="0" stop-color="#fff6c8" stop-opacity=".95"/><stop offset="1" stop-color="#fff6c8" stop-opacity="0"/>
+        </radialGradient>
+        <g id="tree">
+          <rect x="-12" y="30" width="24" height="170" rx="8" fill="#9a6a47"/>
+          <circle cx="0" cy="-20" r="70"/><circle cx="-60" cy="20" r="48"/><circle cx="60" cy="16" r="50"/>
+        </g>
+        <g id="tuft"><path d="M0 0 C-4 -16 -10 -24 -16 -30 M0 0 C0 -18 0 -28 2 -36 M0 0 C4 -16 10 -22 18 -28" fill="none" stroke="#7d9a3c" stroke-width="5" stroke-linecap="round"/></g>
+        <g id="lf"><path d="M0 -14 C11 -9 12 3 0 14 C-12 3 -11 -9 0 -14Z"/></g>
+      </defs>
+      <rect width="1600" height="900" fill="url(#sky)"/>
+      <circle cx="1220" cy="190" r="230" fill="url(#sun)"/>
+      <g class="cloud" fill="#fff" opacity=".8"><ellipse cx="300" cy="140" rx="110" ry="30"/><ellipse cx="370" cy="118" rx="70" ry="28"/><ellipse cx="240" cy="124" rx="60" ry="24"/></g>
+      <g class="cloud c2" fill="#fff" opacity=".7"><ellipse cx="900" cy="100" rx="120" ry="28"/><ellipse cx="970" cy="82" rx="64" ry="26"/></g>
+      <!-- дальние холмы и деревья -->
+      <path d="M0 470 C260 380 520 440 800 410 S1360 380 1600 440 V900 H0Z" fill="#e6cf86"/>
+      <use href="#tree" transform="translate(150 330) scale(1.1)" fill="#ee8b4a"/>
+      <use href="#tree" transform="translate(430 370) scale(.8)" fill="#f4cf5d"/>
+      <use href="#tree" transform="translate(1130 350) scale(.9)" fill="#e9724c"/>
+      <use href="#tree" transform="translate(1440 320) scale(1.2)" fill="#f2a65a"/>
+      <!-- луг -->
+      <path d="M0 520 C300 480 700 510 1000 495 S1450 480 1600 500 V900 H0Z" fill="#b9c85f"/>
+      <path d="M0 610 C400 580 900 600 1600 575 V900 H0Z" fill="#a9bb55"/>
+      <path d="M0 720 C500 700 1000 715 1600 695 V900 H0Z" fill="#9db255"/>
+      <g opacity=".5" fill="#8aa245"><ellipse cx="300" cy="650" rx="170" ry="16"/><ellipse cx="1150" cy="690" rx="200" ry="18"/><ellipse cx="700" cy="800" rx="260" ry="20"/></g>
+      <!-- травинки -->
+      <g>
+        <use href="#tuft" x="120" y="580"/><use href="#tuft" x="520" y="560"/><use href="#tuft" x="900" y="575"/><use href="#tuft" x="1380" y="560"/>
+        <use href="#tuft" x="240" y="700"/><use href="#tuft" x="680" y="690"/><use href="#tuft" x="1080" y="705"/><use href="#tuft" x="1480" y="700"/>
+        <use href="#tuft" x="60" y="820"/><use href="#tuft" x="420" y="840"/><use href="#tuft" x="1000" y="830"/><use href="#tuft" x="1340" y="850"/>
+      </g>
+      <!-- опавшие листики -->
+      <g opacity=".85">
+        <use href="#lf" transform="translate(340 640) rotate(-30)" fill="#ee8b4a"/><use href="#lf" transform="translate(760 600) rotate(40)" fill="#f4cf5d"/>
+        <use href="#lf" transform="translate(1240 630) rotate(10)" fill="#e9724c"/><use href="#lf" transform="translate(180 770) rotate(70)" fill="#f2a65a"/>
+        <use href="#lf" transform="translate(880 760) rotate(-50)" fill="#ee8b4a"/><use href="#lf" transform="translate(1500 790) rotate(25)" fill="#f4cf5d"/>
+        <use href="#lf" transform="translate(560 860) rotate(-10)" fill="#e9724c"/>
+      </g>
+    </svg>
+  </div>
+
+  <!-- Верхняя панель: лого, раунд, кнопки -->
+  <header class="topbar">
+    <img class="logo" src="img/logo.png" alt="Инглишная KiDS" width="216" height="260" />
+
+    <button class="target hidden" id="target" type="button" aria-label="Послушать фразу ещё раз">
+      <span class="t-stars" id="t-stars" aria-label="Собрано"></span>
+      <span class="t-round" id="t-round">1/8</span>
+      <svg class="t-speak" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+
+    <div class="tools">
+      <button class="tbtn" id="btn-music" aria-label="Музыка" aria-pressed="true" title="Музыка">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="3" fill="currentColor"/><circle cx="16.5" cy="16" r="3" fill="currentColor"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tbtn" id="btn-sound" aria-label="Звуки и голос" aria-pressed="true" title="Звуки и голос">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <a class="tbtn wide" href="/games/" aria-label="К списку игр">К играм</a>
+    </div>
+  </header>
+
+  <!-- 1. Правила -->
+  <main class="screen" id="screen-rules">
+    <div class="panel rules">
+      <h1 class="game-title">Ёжик собирает урожай!</h1>
+      <div class="rules-top">
+        <div class="rules-hero"><img src="img/hedgehog.png" alt="" /></div>
+        <div class="bubble">Привет! Помоги мне собрать урожай!</div>
+      </div>
+      <h2 class="sub">Как играть?</h2>
+      <ol class="steps">
+        <li>
+          <div class="step-pic"><div class="mini-phrase">I have two apples</div></div>
+          <p>Послушай фразу и прочитай её наверху. В ней сказано, что и сколько собрать.</p>
+        </li>
+        <li>
+          <div class="step-pic drag"><img class="dg d1" src="img/apple-red.png" alt=""><img class="dg d2" src="img/apple-green.png" alt=""><img class="dh" src="img/basket.png" alt=""></div>
+          <p>Нажми на яблоки или грибы или перетащи их в корзинку. Бери ровно столько, сколько сказано.</p>
+        </li>
+        <li>
+          <div class="step-pic"><div class="mini-stars"></div></div>
+          <p>Собрал всё правильно — получай звёздочку и переходи дальше!</p>
+        </li>
+      </ol>
+      <div class="actions">
+        <a class="btn" href="/games/">К другим играм</a>
+        <button class="btn primary" id="btn-go">Поехали!</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- 2. Игра -->
+  <section class="screen hidden" id="screen-play">
+    <div class="field" id="field">
+      <div class="phrase hidden" id="phrase" role="status" aria-live="polite">
+        <span class="ph-text" id="ph-text">I have two apples</span>
+      </div>
+      <div class="meadow" id="meadow"></div>
+      <div class="hero" id="hero"></div>
+    </div>
+    <div class="fx" id="fx"></div>
+  </section>
+
+  <!-- 3. Победа -->
+  <section class="screen hidden" id="screen-win">
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div class="panel win">
+      <div class="win-hero" id="win-hero"></div>
+      <h2 class="sub big">Ура! Весь урожай собран!</h2>
+      <div class="win-stars" id="win-stars" aria-label="Три звезды"></div>
+      <div class="actions">
+        <button class="btn primary" id="btn-again">Играть ещё</button>
+        <a class="btn" href="/games/">К другим играм</a>
+      </div>
+      <p class="story">Эта история есть в <a href="https://vk.ru/englishnaya.kids" target="_blank" rel="noopener">Осеннем сборнике</a></p>
+    </div>
+  </section>
+
+  <script src="audio.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
