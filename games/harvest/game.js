@@ -109,7 +109,13 @@
   const placeItems = (list) => {
     const bar = parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--bar')) || 92;
     const phr = $('#phrase').getBoundingClientRect();
-    const top = Math.max(bar + 6, phr.bottom) + 10 - $('#field').getBoundingClientRect().top;
+    const fieldTop = $('#field').getBoundingClientRect().top;
+    let top = Math.max(bar + 6, phr.bottom) + 10 - fieldTop;
+    // на узких вертикальных экранах фон растягивается по высоте: предметы кладём только на землю (луг), а не в небо
+    if (window.innerHeight > window.innerWidth * 1.1) {
+      const sc = Math.max(window.innerWidth / 1600, window.innerHeight / 900);
+      top = Math.max(top, window.innerHeight - (900 - 470) * sc - fieldTop);
+    }
     const fs = G.fs, fw = G.fw, fh = G.fh;
     const hx = fw / 2, hTop = fh - G.lift - G.W * 1.45;
     const spots = [];
