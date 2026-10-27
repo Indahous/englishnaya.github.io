@@ -50,6 +50,8 @@
     nav {
       display: flex; justify-content: center; gap: 25px; padding: 6px 0;
       background: var(--brand-yellow); font-weight: 500; font-size: 13px; border-radius: 6px; margin: 0 10px;
+      flex-wrap: wrap;
+      row-gap: 6px;
     }
     nav a { color: var(--tilda-pink); text-decoration: none; position: relative; }
     nav a::after {
@@ -110,7 +112,7 @@
     @media (max-width: 600px) {
       .content { margin-top: 80px; padding: 12px; }
       h1 { font-size: 1.2em; }
-      nav { gap: 12px; padding: 5px 0; font-size: 12px; margin: 0 8px; }
+      nav { gap: 9px; padding: 5px 0; font-size: 12px; margin: 0 8px; }
       h2 { font-size: 1.4em; }
     }
     @media (max-width: 420px) { .games-grid { grid-template-columns: 1fr; } }
@@ -127,6 +129,7 @@
         <a href="/">Главная</a>
         <a href="/games/">Игры</a>
         <a href="/shop/" class="active">Магазин</a>
+        <a href="/advent">Адвент-календарь</a>
       </nav>
     </div>
   </header>
