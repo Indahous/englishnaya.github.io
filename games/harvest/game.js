@@ -22,30 +22,45 @@
     { kind: 'apple', n: 4 }, { kind: 'mushroom', n: 3 }, { kind: 'apple', n: 5 }, { kind: 'mushroom', n: 5 }
   ];
   const phrase = (r) => 'I have ' + NUM[r.n] + ' ' + (r.n === 1 ? KINDS[r.kind].one : KINDS[r.kind].many);
-  const phraseKey = (r) => (r.n === 1 ? KINDS[r.kind].one : KINDS[r.kind].many) + '-' + r.n; // apple-1, apples-2, mushrooms-3 ...
+  /* Фраза собирается из трёх записей: «I have» + число + предмет (apple / apples / mushroom / mushrooms) */
+  const phraseKey = (r) => ['i-have', 'n' + r.n, r.n === 1 ? KINDS[r.kind].one : KINDS[r.kind].many];
+  const DUR = { 'i-have': 0.84, apple: 0.73, apples: 0.86, mushroom: 0.99, mushrooms: 1.28, n1: 0.73, n2: 0.76, n3: 0.78, n4: 0.97, n5: 0.76 }; // секунды (для пауз между раундами)
+  const phraseMs = (r) => phraseKey(r).reduce((t, k) => t + (DUR[k] || 1) * 1000 + 70, 0);
   const STAR = '<svg viewBox="0 0 24 24" aria-hidden="true"><polygon points="12,2 15,9 22,9.3 16.5,14 18.2,21 12,17.2 5.8,21 7.5,14 2,9.3 9,9" stroke-linejoin="round"/></svg>';
   const STACK_POS = [[20, 30, -18], [40, 27, 6], [57, 31, 16], [30, 35, -6], [47, 36, 10]];
 
-  /* ---------- Озвучка (записанные фразы: voice/apples-2.mp3, voice/mushroom-1.mp3, voice/count-3.mp3 …) ---------- */
+  /* ---------- Озвучка (записанные слова: voice/i-have.mp3, n1…n5.mp3, apple(s).mp3, mushroom(s).mp3) ---------- */
   const VOICE = {};
   const voiceEl = (key) => {
-    if (!VOICE[key]) { const a = new Audio('voice/' + key + '.mp3'); a.preload = 'auto'; a.addEventListener('error', () => { a.__bad = true; }); VOICE[key] = a; }
+    if (!VOICE[key]) { const a = new Audio('voice/' + key + '.mp3'); a.preload = 'auto'; VOICE[key] = a; }
     return VOICE[key];
   };
-  let currentVoice = null;
-  const speak = (key) => {
+  let voiceToken = 0, currentVoice = null;
+  const stopVoice = () => { voiceToken++; try { if (currentVoice) currentVoice.pause(); } catch (e) { /* ignore */ } currentVoice = null; };
+  /* speak('n2') — одно слово; speak(['i-have', 'n2', 'apples']) — фраза по частям, одна за другой без пауз */
+  const speak = (keys) => {
     if (!A.sfx) return;
-    const a = voiceEl(key);
-    if (!a || a.__bad) return;
-    try {
-      if (currentVoice && currentVoice !== a) currentVoice.pause();
-      a.currentTime = 0; currentVoice = a;
-      const pr = a.play();
-      if (pr && pr.catch) pr.catch(() => { /* автозапуск мог быть заблокирован */ });
-    } catch (e) { /* озвучка необязательна */ }
+    const list = Array.isArray(keys) ? keys : [keys];
+    stopVoice();
+    const my = voiceToken;
+    const playAt = (i) => {
+      if (my !== voiceToken || i >= list.length) return;
+      const a = voiceEl(list[i]);
+      let moved = false;
+      const next = () => { if (moved) return; moved = true; a.removeEventListener('ended', next); a.removeEventListener('error', next); setTimeout(() => playAt(i + 1), 40); };
+      a.addEventListener('ended', next); a.addEventListener('error', next);
+      currentVoice = a;
+      try {
+        a.currentTime = 0;
+        const pr = a.play();
+        if (pr && pr.catch) pr.catch(next); // автозапуск мог быть заблокирован
+      } catch (e) { next(); }
+      // запасной таймер на случай, если событие «ended» не придёт
+      setTimeout(next, ((DUR[list[i]] || 1) + 0.6) * 1000);
+    };
+    playAt(0);
   };
-  const stopVoice = () => { try { if (currentVoice) currentVoice.pause(); } catch (e) { /* ignore */ } };
-  const preload = () => { ROUNDS.forEach((r) => voiceEl(phraseKey(r))); for (let i = 1; i <= 5; i++) voiceEl('count-' + i); };
+  const preload = () => { Object.keys(DUR).forEach((k) => voiceEl(k)); };
 
   /* ---------- Экраны и состояние ---------- */
   const screens = { rules: $('#screen-rules'), play: $('#screen-play'), win: $('#screen-win') };
@@ -301,7 +316,7 @@
       bumpBasket();
       A.catch();
       spark(mp.x, mp.y, 6);
-      speak('count-' + G.got);
+      speak('n' + G.got);
       G.lastProgress = performance.now();
       if (G.got >= ROUNDS[G.round].n) roundDone();
     }, 540);
@@ -312,15 +327,16 @@
     const r = ROUNDS[G.round];
     setStars(G.round + 1);
     const hr = heroRect();
-    later(() => { A.roundDone(); setAnim('cheer', 1500); spark(hr.left + hr.width / 2, hr.top + hr.height * 0.35, 14); }, 450);
-    later(() => speak(phraseKey(r)), 1100);
+    later(() => { A.roundDone(); setAnim('cheer', 2600); spark(hr.left + hr.width / 2, hr.top + hr.height * 0.35, 14); }, 450);
+    const endMs = 1000 + phraseMs(r) + 800;
+    later(() => speak(phraseKey(r)), 1000);
     later(() => {
       document.querySelectorAll('.fruit').forEach((n) => n.classList.add('gone'));
       const st = $('#hero .stack'); if (st) st.classList.add('clear');
-    }, 3300);
+    }, endMs - 500);
     later(() => {
       if (G.round + 1 < ROUNDS.length) startRound(G.round + 1); else win();
-    }, 3800);
+    }, endMs);
   };
 
   /* ---------- Победа ---------- */
