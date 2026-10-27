@@ -1,39 +1,8 @@
 (function () {
   'use strict';
-  var RED = '#e4605c', TEAL = '#3b7a74', W = '#fffdf3', Y = '#f4e39e', P = '#f2a4cf', G = '#7fb069', BR = '#b9783f';
+  var RED = '#ec6561', TEAL = '#3a7872', W = '#fffdf3', Y = '#f4e39e', P = '#f2a4cf', G = '#7fb069', BR = '#b9783f';
 
-  /* ---------- Иллюстрации окошек (viewBox 100×100) ---------- */
-  var ART = {
-    1: '<path d="M50 14l22 26H60l18 22H64l16 20H20l16-20H22l18-22H28z" fill="' + W + '"/><rect x="45" y="80" width="10" height="9" rx="2" fill="' + BR + '"/><path d="M50 12l3 6h6l-5 4 2 6-6-4-6 4 2-6-5-4h6z" fill="' + Y + '"/><circle cx="42" cy="48" r="3" fill="' + P + '"/><circle cx="58" cy="62" r="3" fill="' + Y + '"/><circle cx="40" cy="70" r="3" fill="' + P + '"/>',
-    2: '<rect x="44" y="12" width="12" height="9" rx="2" fill="' + Y + '"/><path d="M50 21v7" stroke="' + Y + '" stroke-width="3"/><circle cx="50" cy="56" r="29" fill="' + W + '"/><path d="M26 50q24 14 48 0M24 62q26 14 52 0" stroke="' + RED + '" stroke-width="5" fill="none" stroke-linecap="round" opacity=".85"/><circle cx="40" cy="42" r="3" fill="' + Y + '"/><circle cx="60" cy="42" r="3" fill="' + Y + '"/><circle cx="50" cy="73" r="3" fill="' + Y + '"/><ellipse cx="40" cy="44" rx="5" ry="9" fill="#fff" opacity=".5" transform="rotate(25 40 44)"/>',
-    3: '<rect x="14" y="52" width="40" height="34" rx="3" fill="' + W + '"/><rect x="31" y="52" width="6" height="34" fill="' + RED + '"/><rect x="14" y="52" width="40" height="6" fill="' + P + '" opacity=".0"/><path d="M34 52c-12-14-18-2-8 0zM34 52c12-14 18-2 8 0z" fill="' + RED + '"/><rect x="46" y="30" width="38" height="56" rx="3" fill="' + P + '"/><rect x="62" y="30" width="6" height="56" fill="' + W + '"/><path d="M65 30c-12-14-18-2-8 0zM65 30c12-14 18-2 8 0z" fill="' + W + '"/>',
-    4: '<circle cx="50" cy="26" r="13" fill="' + BR + '"/><path d="M38 38h24l22-6 4 8-22 12 8 28-10 4-8-18-8 18-10-4 8-28L12 40l4-8z" fill="' + BR + '" transform="translate(0 4)"/><circle cx="45" cy="24" r="2" fill="#fff"/><circle cx="55" cy="24" r="2" fill="#fff"/><path d="M45 30q5 4 10 0" stroke="#fff" stroke-width="2" fill="none" stroke-linecap="round"/><circle cx="50" cy="50" r="2.6" fill="' + W + '"/><circle cx="50" cy="60" r="2.6" fill="' + W + '"/><path d="M38 16q12-6 24 0" stroke="' + W + '" stroke-width="3" fill="none" stroke-linecap="round" opacity=".0"/><path d="M14 38q4 4 8 0M78 38q4 4 8 0M36 82q3 4 8 0M56 82q3 4 8 0" stroke="' + W + '" stroke-width="2.5" fill="none" stroke-linecap="round"/>',
-    5: '<path d="M22 66c0-30 12-44 28-44s28 14 28 44z" fill="' + RED + '"/><rect x="18" y="62" width="64" height="16" rx="8" fill="' + W + '"/><path d="M26 70h48" stroke="#d9d4be" stroke-width="2" stroke-dasharray="3 4"/><circle cx="50" cy="20" r="8" fill="' + W + '"/><path d="M34 40l8 8M44 32l10 10M56 28l10 10" stroke="' + W + '" stroke-width="3" stroke-linecap="round" opacity=".8"/>',
-    6: '<path d="M34 16h24v36l22 14c6 4 4 14-4 14H48c-9 0-14-6-14-14z" fill="' + W + '"/><rect x="30" y="12" width="32" height="14" rx="5" fill="' + TEAL + '"/><path d="M34 40h24M34 52h24" stroke="' + RED + '" stroke-width="4"/><path d="M68 72q6 0 8 6" stroke="' + RED + '" stroke-width="4" fill="none" stroke-linecap="round"/>',
-    7: '<circle cx="50" cy="44" r="30" fill="#e8f6f5" stroke="' + W + '" stroke-width="3"/><path d="M30 78q20-10 40 0l4 8H26z" fill="' + RED + '"/><rect x="32" y="74" width="36" height="6" fill="' + Y + '"/><path d="M50 56l-6 14h12z" fill="' + G + '"/><path d="M50 40l-8 18h16z" fill="' + G + '" /><path d="M50 28l-6 14h12z" fill="' + G + '"/><circle cx="40" cy="38" r="2" fill="#fff"/><circle cx="62" cy="48" r="2" fill="#fff"/><circle cx="56" cy="30" r="2" fill="#fff"/><circle cx="38" cy="54" r="2" fill="#fff"/><ellipse cx="38" cy="30" rx="4" ry="9" fill="#fff" opacity=".7" transform="rotate(30 38 30)"/>',
-    8: '<path d="M50 14c-18 0-24 16-24 34 0 12-6 18-10 24h68c-4-6-10-12-10-24 0-18-6-34-24-34z" fill="' + Y + '"/><circle cx="50" cy="12" r="5" fill="' + Y + '"/><circle cx="50" cy="78" r="8" fill="' + BR + '"/><path d="M34 34q-4 10-2 24" stroke="#fff" stroke-width="4" fill="none" stroke-linecap="round" opacity=".7"/><path d="M16 72h68" stroke="' + BR + '" stroke-width="4" stroke-linecap="round"/><path d="M40 26q10-6 20 0" stroke="' + RED + '" stroke-width="5" fill="none" stroke-linecap="round" opacity=".0"/>',
-    9: '<g stroke="' + W + '" stroke-width="5" stroke-linecap="round" fill="none"><path d="M50 12v76M17 31l66 38M17 69l66-38"/><path d="M42 18l8 8 8-8M42 82l8-8 8 8M20 44l11 3-3-11M80 56l-11-3 3 11M20 56l11-3-3 11M80 44l-11 3 3-11"/></g><circle cx="50" cy="50" r="6" fill="' + P + '"/>',
-    10: '<g fill="none" stroke-linecap="round"><path d="M28 80V34q0-18 18-18t18 18" stroke="' + W + '" stroke-width="11"/><path d="M28 70V34q0-18 18-18t18 18" stroke="' + RED + '" stroke-width="11" stroke-dasharray="9 9" /><path d="M54 84V46q0-16 16-16t16 16" stroke="' + W + '" stroke-width="10" transform="translate(-8 0)"/><path d="M54 74V46q0-16 16-16t16 16" stroke="' + RED + '" stroke-width="10" stroke-dasharray="9 9" transform="translate(-8 0)"/></g>',
-    11: '<g fill="' + G + '"><path d="M50 60C32 62 16 54 14 42c12-6 26-2 36 18z"/><path d="M50 60c18 2 34-6 36-18-12-6-26-2-36 18z"/><path d="M50 56C38 46 36 30 46 18c12 10 10 26 4 38z" /></g><path d="M50 60C34 58 26 52 22 46M50 60c16-2 24-8 28-14M50 56V26" stroke="#4f8a45" stroke-width="2" fill="none"/><circle cx="42" cy="66" r="8" fill="' + W + '"/><circle cx="58" cy="66" r="8" fill="' + W + '"/><circle cx="50" cy="74" r="8" fill="' + W + '"/><circle cx="42" cy="66" r="6" fill="' + RED + '"/><circle cx="58" cy="66" r="6" fill="' + RED + '"/><circle cx="50" cy="74" r="6" fill="' + RED + '"/>'
-  };
-  /* цвета окошек: 1 красное, 2 зелёное… как в образце (чередование) */
-  var COL = { 1: RED, 2: TEAL, 3: RED, 4: TEAL, 5: TEAL, 6: RED, 7: TEAL, 8: RED, 9: RED, 10: TEAL, 11: RED };
-  var NUMCOL = { 1: Y, 2: Y, 3: Y, 4: Y, 5: Y, 6: Y, 7: Y, 8: '#fff', 9: '#fff', 10: Y, 11: Y };
-
-  /* «Марка» — квадрат с зубчиками по краю */
-  function stamp() {
-    var s = 100, r = 3.4, n = 10, step = s / n, d = 'M0 0';
-    var i;
-    for (i = 0; i < n; i++) d += 'L' + (i * step + step / 2 - r) + ' 0A' + r + ' ' + r + ' 0 0 0 ' + (i * step + step / 2 + r) + ' 0';
-    d += 'L' + s + ' 0';
-    for (i = 0; i < n; i++) d += 'L' + s + ' ' + (i * step + step / 2 - r) + 'A' + r + ' ' + r + ' 0 0 0 ' + s + ' ' + (i * step + step / 2 + r);
-    d += 'L' + s + ' ' + s;
-    for (i = n - 1; i >= 0; i--) d += 'L' + (i * step + step / 2 + r) + ' ' + s + 'A' + r + ' ' + r + ' 0 0 0 ' + (i * step + step / 2 - r) + ' ' + s;
-    d += 'L0 ' + s;
-    for (i = n - 1; i >= 0; i--) d += 'L0 ' + (i * step + step / 2 + r) + 'A' + r + ' ' + r + ' 0 0 0 0 ' + (i * step + step / 2 - r);
-    return d + 'Z';
-  }
-  var STAMP = stamp();
+  var AA = window.ADVENT_ART, EDGE = AA.wavy(2.6, 9);
 
   var cal = document.getElementById('cal');
   for (var n = 1; n <= 11; n++) {
@@ -44,12 +13,9 @@
     b.setAttribute('aria-label', open ? 'Окошко 1: игра «Найди пару»' : 'Окошко ' + n + ': скоро');
     if (!open) b.setAttribute('aria-disabled', 'true');
     b.innerHTML =
-      '<svg class="tile" viewBox="0 0 100 100" aria-hidden="true"><path d="' + STAMP + '" fill="#fff"/>' +
-      '<rect x="6" y="6" width="88" height="88" rx="4" fill="' + COL[n] + '"/>' +
-      '<rect x="9.5" y="9.5" width="81" height="81" rx="2" fill="none" stroke="#fff" stroke-opacity=".35" stroke-width="1" stroke-dasharray="2 2"/>' +
-      '<g class="art" transform="translate(14 10) scale(.72)">' + ART[n] + '</g>' +
-      '<text x="14" y="30" font-family="Playfair Display,Georgia,serif" font-weight="900" font-size="26" fill="' + NUMCOL[n] + '" stroke="' + COL[n] + '" stroke-width="2" paint-order="stroke">' + n + '</text></svg>' +
-      (open ? '<span class="play">Играть</span>' : '<span class="soon">Скоро</span>');
+      '<svg class="tile" viewBox="0 0 100 100" aria-hidden="true"><path d="' + EDGE + '" fill="' + AA.ART[n].bg + '"/>' +
+      '<g class="art">' + AA.ART[n].svg + '</g></svg>' +
+      (open ? '<span class="play ' + AA.ART[n].pos + '">Играть</span>' : '<span class="soon ' + AA.ART[n].pos + '">Скоро</span>');
     cal.appendChild(b);
     if (open) b.addEventListener('click', openGame);
   }
