@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Адвент-календарь — englishnayakids.ru</title>
+  <meta name="description" content="Новогодний адвент-календарь клуба «Инглишная KiDS»: за каждым окошком — материалы и игры для изучения английского с детьми." />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;0,900;1,700&subset=latin,cyrillic" rel="stylesheet">
+  <link rel="stylesheet" href="advent.css" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body>
+  <header id="header">
+    <div class="header-inner">
+      <nav>
+        <a href="/">Главная</a>
+        <a href="/games/">Игры</a>
+        <a href="/shop/">Магазин</a>
+        <a href="/advent" class="active">Адвент-календарь</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="snow" id="snow" aria-hidden="true"></div>
+
+  <main class="page">
+    <img class="logo" src="img/logo.png" alt="Инглишная KiDS" width="108" height="130" />
+    <h1 class="title">Advent <span>Calendar</span></h1>
+    <p class="lead">Открывай окошко и играй вместе с «Инглишной KiDS»!</p>
+    <div class="cal" id="cal" aria-label="Адвент-календарь"></div>
+    <footer>
+      <p>© 2026 englishnayakids.ru<br>Самозанятый — Дроздова Екатерина Сергеевна<br>ИНН: 027720443731<br>
+      <a href="mailto:englishnayaa@mail.ru">englishnayaa@mail.ru</a></p>
+    </footer>
+  </main>
+
+  <!-- Окно игры -->
+  <div class="modal hidden" id="modal" role="dialog" aria-modal="true" aria-labelledby="g-title">
+    <div class="win">
+      <button class="x" id="x" type="button" aria-label="Закрыть">
+        <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="3.2" stroke-linecap="round"/></svg>
+      </button>
+      <h2 id="g-title">Найди пару</h2>
+      <div class="stats" id="stats">
+        <div class="st"><span class="lbl">Время</span><b id="s-time">1:30</b></div>
+        <div class="st"><span class="lbl">Попытки</span><b id="s-tries">0</b></div>
+        <div class="st"><span class="lbl">Пары</span><b id="s-pairs">0/4</b></div>
+        <button class="tb" id="b-sound" aria-pressed="true" aria-label="Звуки и голос" title="Звуки и голос">
+          <svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <div class="hint" id="hint">Find the pairs</div>
+      <div class="board" id="board"></div>
+
+      <div class="over hidden" id="over">
+        <canvas id="confetti" aria-hidden="true"></canvas>
+        <div class="over-box">
+          <h3 id="o-title">You win!</h3>
+          <div class="stars" id="o-stars"></div>
+          <p id="o-text"></p>
+          <div class="acts"><button class="btn primary" id="o-again">Играть ещё</button><button class="btn" id="o-close">Закрыть</button></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="audio.js"></script>
+  <script src="advent.js"></script>
+</body>
+</html>
