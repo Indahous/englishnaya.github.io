@@ -1,0 +1,701 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, user-scalable=no">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#f7d5cd">
+<title>С Днём Рождения, Катюша!</title>
+<script>
+  // /wish без слэша на конце → /wish/, иначе не найдутся файлы
+  (function () {
+    var p = location.pathname;
+    if (!/\/$/.test(p) && !/\.[a-z0-9]+$/i.test(p)) location.replace(p + '/' + location.search + location.hash);
+  })();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marck+Script&family=Nunito:wght@700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #c99338; --gold-l: #ecc977; --rose: #c8325a; --blush: #f7d5cd; --cream: #fff6ee; --ink: #6a3b40;
+    --script: 'Marck Script', 'Segoe Script', 'Snell Roundhand', 'Brush Script MT', Georgia, serif;
+    --ui: 'Nunito', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #f7d5cd; overscroll-behavior: none; touch-action: none; }
+  body { font-family: var(--ui); color: var(--ink); user-select: none; -webkit-user-select: none; }
+
+  #table { position: fixed; inset: 0; background-color: #f7d5cd; }
+  .world { position: fixed; left: 0; top: 0; width: 0; height: 0; transform-origin: 0 0; }
+  .world > * { position: absolute; left: 0; top: 0; transform-origin: 50% 50%; }
+  canvas.layer { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+  #vignette { position: fixed; inset: 0; pointer-events: none; z-index: 4;
+    background: radial-gradient(ellipse at center, rgba(255,255,255,0) 58%, rgba(196,108,118,.17) 100%); }
+
+  /* фото именинницы: простые белые карточки */
+  .pol { background: #fff; padding: 8px 8px 28px; border-radius: 3px;
+    box-shadow: 0 10px 22px rgba(150, 70, 80, .28), 0 1px 3px rgba(150, 70, 80, .2); }
+  .pol img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 1px; filter: saturate(1.05) contrast(1.02); }
+
+  /* рамка под видео */
+  .vframe { background: #fff; padding: 12px 12px 52px; border-radius: 14px;
+    box-shadow: 0 0 0 1px rgba(201, 147, 56, .5), 0 22px 46px rgba(150, 70, 80, .32); }
+  .vframe video { display: block; border-radius: 7px; background: #f0d9d3; object-fit: cover; }
+  .vframe .name { position: absolute; left: 10px; right: 10px; bottom: 9px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    font: 400 28px/1.35 var(--script); color: var(--gold); }
+  .playbtn { position: absolute; left: 50%; top: 42%; width: 84px; height: 84px; margin: -42px 0 0 -42px; border-radius: 50%; border: 0;
+    background: var(--rose); color: #fff; font-size: 36px; display: none; align-items: center; justify-content: center;
+    box-shadow: 0 8px 24px rgba(0,0,0,.3); padding-left: 7px; }
+  .playbtn.on { display: flex; }
+
+  /* свечи */
+  .flick { transform-box: fill-box; transform-origin: 50% 100%; animation: flick .32s ease-in-out infinite alternate; }
+  .wind  { transform-box: fill-box; transform-origin: 50% 100%; animation: wind 3.4s ease-in-out infinite; }
+  @keyframes flick { from { transform: scale(1, 1) skewX(-3deg); } to { transform: scale(.88, 1.14) skewX(4deg); } }
+  @keyframes wind  { 0%,100% { transform: rotate(-2deg); } 35% { transform: rotate(10deg); } 60% { transform: rotate(3deg); } 80% { transform: rotate(-6deg); } }
+
+  /* заголовок: золотая каллиграфия */
+  #title { position: fixed; left: 0; right: 0; top: calc(env(safe-area-inset-top, 0px) + 3.4vh); text-align: center; pointer-events: none; z-index: 6;
+    font-family: var(--script); font-size: clamp(30px, 10.2vw, 68px); line-height: 1.14; padding: 0 8px; transition: opacity .9s ease, transform .9s ease; }
+  #title.gone { opacity: 0; transform: translateY(-24px); }
+  #title .ln { display: block; white-space: nowrap; }
+  #title span.ch { display: inline-block; opacity: 0; animation: rise .9s cubic-bezier(.2,.8,.3,1) forwards; animation-delay: calc(var(--i) * 70ms);
+    background: linear-gradient(180deg, #efce80 0%, #d4a040 55%, #b8832f 100%); -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent; color: transparent; filter: drop-shadow(0 1px 0 rgba(255,255,255,.65)); }
+  @keyframes rise { 0% { opacity: 0; transform: translateY(18px) scale(.9); } 100% { opacity: 1; transform: none; } }
+  #title.paused span.ch { animation-play-state: paused; }
+
+  /* экраны */
+  .screen { position: fixed; inset: 0; z-index: 10; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px;
+    text-align: center; padding: 24px; transition: opacity .7s ease; }
+  #start { background: radial-gradient(ellipse at center, rgba(255,246,238,.88), rgba(247,213,205,.7)); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  .screen.hide { opacity: 0; pointer-events: none; }
+  .screen h1 { font: 400 clamp(40px, 12vw, 64px)/1.1 var(--script); margin: 0; color: var(--gold);
+    background: linear-gradient(180deg, #efce80, #b8832f); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; }
+  .screen p { margin: 0; font-weight: 700; font-size: 17px; color: var(--ink); opacity: .75; }
+  .bigbtn { font: 800 19px var(--ui); letter-spacing: .03em; color: #fff; border: 0; border-radius: 999px; padding: 17px 38px; cursor: pointer;
+    background: var(--rose); box-shadow: 0 10px 24px rgba(200, 50, 90, .35); transition: transform .12s; }
+  .bigbtn:active { transform: scale(.96); }
+  #end { justify-content: flex-end; padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6vh); pointer-events: none; background: none; }
+  #end.hide .card { pointer-events: none; }
+  #end:not(.hide) .card { pointer-events: auto; }
+  #end .card { background: rgba(255,250,246,.93); border-radius: 24px; padding: 18px 26px 22px; max-width: 420px; width: 100%;
+    box-shadow: 0 18px 44px rgba(150, 70, 80, .3); display: flex; flex-direction: column; gap: 12px; align-items: center; }
+  #end .card h1 { font-size: clamp(34px, 9.5vw, 48px); }
+  #end .bigbtn { font-size: 16px; padding: 13px 28px; box-shadow: 0 6px 16px rgba(200, 50, 90, .32); }
+  @media (min-aspect-ratio: 12/10) {
+    #end { padding-bottom: 3vh; }
+    #end .card { flex-direction: row; max-width: 720px; padding: 10px 24px; gap: 22px; justify-content: space-between; }
+    #end .card h1 { font-size: 36px; }
+    #title { font-size: clamp(30px, 7vh, 60px); }
+    #title .ln { display: inline; }
+  }
+
+  /* кнопки управления */
+  #ui { position: fixed; z-index: 8; right: calc(env(safe-area-inset-right, 0px) + 12px); top: calc(env(safe-area-inset-top, 0px) + 12px); display: flex; gap: 10px; transition: opacity .5s; }
+  #ui.hide { opacity: 0; pointer-events: none; }
+  #ui button { width: 42px; height: 42px; border-radius: 50%; border: 0; background: rgba(255,255,255,.8); color: var(--ink); font-size: 15px; font-weight: 900;
+    box-shadow: 0 4px 12px rgba(150, 70, 80, .25); cursor: pointer; backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); }
+  #dots { position: fixed; z-index: 8; left: 0; right: 0; bottom: calc(env(safe-area-inset-bottom, 0px) + 16px); display: flex; justify-content: center; gap: 8px; transition: opacity .5s; pointer-events: none; }
+  #dots.hide { opacity: 0; }
+  #dots i { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,.85); box-shadow: 0 1px 3px rgba(150,70,80,.3); transition: transform .3s, background .3s; }
+  #dots i.on { background: var(--gold); transform: scale(1.5); }
+  #dots i.done { background: #e9c27a; }
+</style>
+</head>
+<body>
+
+<div id="table"></div>
+<div class="world" id="wb"></div>
+<canvas class="layer" id="air" style="z-index:1"></canvas>
+<div class="world" id="wt" style="z-index:2"></div>
+<canvas class="layer" id="burst" style="z-index:5"></canvas>
+<div id="vignette"></div>
+<div id="title" aria-label=""></div>
+
+<div id="ui" class="hide">
+  <button id="pauseBtn" title="Пауза" aria-label="Пауза">❚❚</button>
+  <button id="skipBtn" title="Дальше" aria-label="Дальше">▶▶</button>
+</div>
+<div id="dots" class="hide"></div>
+
+<section class="screen" id="start">
+  <h1>Катюша,<br>это тебе!</h1>
+  <p>Включи звук и нажми кнопку</p>
+  <button class="bigbtn" id="startBtn">Открыть</button>
+</section>
+
+<section class="screen hide" id="end">
+  <div class="card">
+    <h1 id="endText">Мы тебя любим!</h1>
+    <button class="bigbtn" id="againBtn">Посмотреть ещё раз</button>
+  </div>
+</section>
+
+<script src="config.js"></script>
+<script>
+(() => {
+'use strict';
+const CFG = window.WISH;
+const $ = id => document.getElementById(id);
+const BAL = ['#f3b0b8', '#e2b15a', '#c8325a', '#f6dcc9'];                         // пудровый, золото, малина, шампань
+const GOLDS = ['#e2b15a', '#f0cd80', '#d19a3e', '#f3b0b8', '#fff4ec', '#c8325a'];  // конфетти
+const GIFTS = [{ box: '#f4b5bc', rib: '#fff4ec' }, { box: '#f8eadf', rib: '#d9a283' }, { box: '#e58ea1', rib: '#f9e0d6' }, { box: '#f1c987', rib: '#fff4ec' }];
+function mulberry(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const rand = (a, b) => a + Math.random() * (b - a);
+const lerp = (a, b, t) => a + (b - a) * t;
+const clamp = (v, a, b) => Math.min(b, Math.max(a, v));
+const easeIO = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeSine = t => -(Math.cos(Math.PI * t) - 1) / 2;
+const SPEED = parseFloat(new URLSearchParams(location.search).get('speed')) || 1;
+
+let vw = innerWidth, vh = innerHeight, dpr = Math.min(devicePixelRatio || 1, 2);
+const wb = $('wb'), wt = $('wt'), tableEl = $('table');
+const air = $('air'), actx = air.getContext('2d');
+const bur = $('burst'), bctx = bur.getContext('2d');
+
+/* ============ часы, паузы, ожидание ============ */
+let clock = 0, last = performance.now(), paused = false, started = false;
+const timers = [];
+const wait = ms => new Promise(res => timers.push({ t: clock + ms / SPEED, res }));
+const later = (ms, fn) => timers.push({ t: clock + ms / SPEED, res: fn });
+
+/* ============ камера ============ */
+const cam = { x: 0, y: 0, s: .8 };
+let tw = null;
+function camTo(to, ms, ease = easeIO) {
+  return new Promise(res => { tw = { from: { ...cam }, to, t0: clock, dur: ms / SPEED, res, ease }; });
+}
+function stepTween() {
+  if (!tw) return;
+  const p = clamp((clock - tw.t0) / tw.dur, 0, 1), e = tw.ease(p);
+  const s0 = tw.from.s, s1 = tw.to.s;
+  cam.s = Math.exp(lerp(Math.log(s0), Math.log(s1), e));
+  // положение интерполируем «правильно» относительно зума, чтобы путь на экране был ровным
+  let u = e;
+  if (Math.abs(1 / s1 - 1 / s0) > 1e-4) u = clamp((1 / cam.s - 1 / s0) / (1 / s1 - 1 / s0), 0, 1);
+  cam.x = lerp(tw.from.x, tw.to.x, u); cam.y = lerp(tw.from.y, tw.to.y, u);
+  if (p >= 1) { const r = tw.res; tw = null; r(); }
+}
+function applyCam() {
+  const tx = vw / 2 - cam.x * cam.s, ty = vh / 2 - cam.y * cam.s;
+  const tr = `translate3d(${tx.toFixed(2)}px,${ty.toFixed(2)}px,0) scale(${cam.s.toFixed(4)})`;
+  wb.style.transform = tr; wt.style.transform = tr;
+  // бесконечная скатерть: узор привязан к мировым координатам
+  const d = 480 * cam.s;
+  tableEl.style.backgroundSize = `${d}px ${d}px, 100% 100%`;
+  tableEl.style.backgroundPosition = `${tx}px ${ty}px, 0 0`;
+}
+(function bg() {
+  const r = mulberry(11); let t = '';
+  for (let i = 0; i < 20; i++) {
+    const x = (r() * 470 + 5).toFixed(0), y = (r() * 470 + 5).toFixed(0), c = ['#e2b15a', '#efca7d', '#d19a3e'][i % 3];
+    if (i % 4 === 3) t += `<rect x="${x}" y="${y}" width="${(6 + r() * 6).toFixed(0)}" height="3.4" rx="1.7" fill="${c}" transform="rotate(${(r() * 180).toFixed(0)} ${x} ${y})"/>`;
+    else t += `<circle cx="${x}" cy="${y}" r="${(2 + r() * 4.2).toFixed(1)}" fill="${c}"/>`;
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="480" height="480" viewBox="0 0 480 480">${t}</svg>`;
+  tableEl.style.backgroundImage = `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}"), radial-gradient(ellipse at 50% 32%, rgba(255,238,230,.95) 0%, rgba(250,216,208,.55) 48%, rgba(236,170,172,.5) 100%)`;
+  tableEl.style.backgroundRepeat = 'repeat, no-repeat';
+})();
+
+function fit(minX, minY, maxX, maxY, px = .9, py = .8, maxS = 1.3) {
+  const w = Math.max(maxX - minX, 10), h = Math.max(maxY - minY, 10);
+  return { x: (minX + maxX) / 2, y: (minY + maxY) / 2, s: clamp(Math.min(vw * px / w, vh * py / h), .06, maxS) };
+}
+
+/* ============ SVG-рисунки ============ */
+function cakeSVG() {
+  const xs = [96, 123, 150, 177, 204], cols = ['#f3b0b8', '#f6e3cc', '#e2b15a', '#f6e3cc', '#f3b0b8'];
+  let candles = '';
+  xs.forEach((x, i) => {
+    const y0 = 141 + (i % 2 ? 5 : 0);
+    candles += `<g transform="translate(${x} ${y0})">
+      <rect x="-4" y="-46" width="8" height="46" rx="3" fill="${cols[i]}"/>
+      <path d="M-4 -34 L4 -39 M-4 -22 L4 -27 M-4 -10 L4 -15" stroke="#fff" stroke-width="2.4" opacity=".7" fill="none"/>
+      <g transform="translate(0 -47)"><g class="wind" style="animation-delay:-${(i * .7).toFixed(1)}s"><g class="flick" style="animation-delay:-${(i * .11).toFixed(2)}s">
+        <circle cy="-16" r="20" fill="url(#glow)"/>
+        <path d="M0 0 C-7 -8 -6 -21 0 -30 C6 -21 7 -8 0 0Z" fill="url(#flameg)"/>
+        <path d="M0 -2 C-3 -6 -2.6 -12 0 -17 C2.6 -12 3 -6 0 -2Z" fill="#fffbe6"/>
+      </g></g></g></g>`;
+  });
+  const scallops = (cx, cy, rx, ry, step, r, col) => {
+    let o = '';
+    for (let x = cx - rx + 8; x <= cx + rx - 8; x += step) {
+      const k = (x - cx) / rx, y = cy + ry * Math.sqrt(Math.max(0, 1 - k * k)) + 2;
+      o += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${r}" fill="${col}"/>`;
+    }
+    return o;
+  };
+  let pearls = '';
+  for (let x = 38; x <= 262; x += 15) { const k = (x - 150) / 120, y = 303 + 22 * Math.sqrt(Math.max(0, 1 - k * k)); pearls += `<circle cx="${x}" cy="${y.toFixed(1)}" r="3.3" fill="#e2b15a"/>`; }
+  return `<svg viewBox="0 0 300 370" width="300" height="370" style="overflow:visible">
+  <defs>
+    <radialGradient id="glow"><stop offset="0" stop-color="#ffe6a0" stop-opacity=".8"/><stop offset="1" stop-color="#ffc060" stop-opacity="0"/></radialGradient>
+    <linearGradient id="flameg" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#ff8a2a"/><stop offset="1" stop-color="#ffd54a"/></linearGradient>
+    <linearGradient id="t1" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#efa5b0"/><stop offset=".45" stop-color="#f8c8ce"/><stop offset="1" stop-color="#eb9eaa"/></linearGradient>
+    <linearGradient id="t2" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#f3dccb"/><stop offset=".45" stop-color="#fff8f0"/><stop offset="1" stop-color="#efd5c2"/></linearGradient>
+  </defs>
+  <ellipse cx="150" cy="338" rx="146" ry="24" fill="#a85a66" opacity=".2"/>
+  <ellipse cx="150" cy="328" rx="142" ry="25" fill="#fffaf5" stroke="#e7c27a" stroke-width="1.5"/><ellipse cx="150" cy="326" rx="122" ry="19" fill="#f6e8dc"/>
+  <path d="M30 228 V312 a120 22 0 0 0 240 0 V228 Z" fill="url(#t1)"/>
+  <ellipse cx="150" cy="228" rx="120" ry="24" fill="#fbd8dc"/>
+  ${scallops(150, 228, 120, 24, 21, 11, '#fff6ee')}
+  ${pearls}
+  <text x="150" y="282" text-anchor="middle" font-family="'Marck Script', 'Segoe Script', cursive" font-size="34" fill="#fffaf2" stroke="#c99338" stroke-width=".7">Катюша</text>
+  <path d="M70 146 V222 a80 17 0 0 0 160 0 V146 Z" fill="url(#t2)"/>
+  <ellipse cx="150" cy="146" rx="80" ry="17" fill="#fffbf6"/>
+  ${scallops(150, 146, 80, 17, 18, 9, '#f8c8ce')}
+  ${candles}
+  </svg>`;
+}
+function giftSVG(c) {
+  return `<svg viewBox="0 0 112 112" width="112" height="112" style="overflow:visible">
+    <rect x="9" y="13" width="98" height="98" rx="9" fill="#8a3a4a" opacity=".16"/>
+    <rect x="4" y="4" width="98" height="98" rx="9" fill="${c.box}"/>
+    <rect x="4" y="4" width="98" height="98" rx="9" fill="none" stroke="#fff" stroke-opacity=".55" stroke-width="2"/>
+    <rect x="43" y="4" width="20" height="98" fill="${c.rib}"/><rect x="4" y="43" width="98" height="20" fill="${c.rib}"/>
+    <g transform="translate(53 53)">
+      <path d="M-4 4 L-19 30 L-8 27 L-1 12Z" fill="${c.rib}"/><path d="M4 4 L19 30 L8 27 L1 12Z" fill="${c.rib}"/>
+      <path d="M-4 4 L-19 30 L-8 27 L-1 12Z" fill="#000" opacity=".07"/>
+      <ellipse cx="-17" cy="-8" rx="18" ry="10" fill="${c.rib}" transform="rotate(-24 -17 -8)"/><ellipse cx="-17" cy="-8" rx="9" ry="4.5" fill="#000" opacity=".08" transform="rotate(-24 -17 -8)"/>
+      <ellipse cx="17" cy="-8" rx="18" ry="10" fill="${c.rib}" transform="rotate(24 17 -8)"/><ellipse cx="17" cy="-8" rx="9" ry="4.5" fill="#000" opacity=".08" transform="rotate(24 17 -8)"/>
+      <circle r="7.5" fill="${c.rib}"/><circle r="7.5" fill="none" stroke="#000" stroke-opacity=".08"/>
+    </g></svg>`;
+}
+function ribbonSVG(flip = 1, loops = 4.5) {
+  const a = 6.2, b = 15, N = 90; let d = '';
+  for (let i = 0; i <= N; i++) {
+    const t = i / N * loops * Math.PI, x = a * t - b * Math.sin(t), y = -b * Math.cos(t) + i * .45 + (i / N) * 8 * Math.sin(t * .35);
+    d += (i ? 'L' : 'M') + x.toFixed(1) + ' ' + y.toFixed(1);
+  }
+  const id = 'rb' + (uid++);
+  return `<svg viewBox="-24 -34 150 112" width="150" height="112" style="overflow:visible;transform:scaleX(${flip})">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f3d58e"/><stop offset=".5" stop-color="#d9a64a"/><stop offset="1" stop-color="#bf8630"/></linearGradient></defs>
+    <path d="${d}" fill="none" stroke="#8a5a1e" stroke-opacity=".18" stroke-width="8" stroke-linecap="round" transform="translate(2 3)"/>
+    <path d="${d}" fill="none" stroke="url(#${id})" stroke-width="6.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <path d="${d}" fill="none" stroke="#fff3c9" stroke-opacity=".7" stroke-width="1.8" stroke-linecap="round" transform="translate(-1 -1)"/>
+  </svg>`;
+}
+let uid = 0;
+
+/* ============ элементы мира ============ */
+function put(layer, node, x, y, w, h, rot = 0) {
+  node.style.width = w + 'px'; node.style.height = h + 'px';
+  node.dataset.x = x - w / 2; node.dataset.y = y - h / 2; node.dataset.r = rot;
+  node.style.transform = `translate(${x - w / 2}px,${y - h / 2}px) rotate(${rot}deg)`;
+  layer.appendChild(node);
+  return node;
+}
+const T = (n, extra = '') => `translate(${n.dataset.x}px,${n.dataset.y}px) rotate(${n.dataset.r}deg)${extra}`;
+function popIn(n, ms = 600, delay = 0, from = 0) {
+  n.animate([
+    { transform: T(n, ` scale(${from})`), opacity: 0 },
+    { transform: T(n, ' scale(1.14)'), opacity: 1, offset: .6 },
+    { transform: T(n, ' scale(1)'), opacity: 1 }
+  ], { duration: ms / SPEED, delay: delay / SPEED, easing: 'cubic-bezier(.3,1.2,.5,1)', fill: 'backwards' });
+}
+
+function polaroid(ph, scale = 1) {
+  const a = ph.w / ph.h, base = 200 * scale;
+  const pw = a >= 1 ? base : base * a, phh = a >= 1 ? base / a : base;
+  const n = document.createElement('div');
+  n.className = 'pol';
+  n.innerHTML = `<img src="${ph.src}" alt="" draggable="false"><i class="tape"></i>`;
+  n.firstChild.style.height = phh + 'px';
+  n.style.padding = `${8 * scale}px ${8 * scale}px ${30 * scale}px`;
+  return { n, w: pw + 16 * scale, h: phh + 38 * scale };
+}
+
+/* ============ раскладка ============ */
+const aspect = () => vw / vh;
+function ringStretch() { const a = aspect(); return a < .8 ? [.9, 1.15] : a > 1.2 ? [1.25, .9] : [1, 1]; }
+function photoStretch() { const a = aspect(); return a < .8 ? [.74, 1.5] : a > 1.2 ? [1.5, .85] : [1, 1]; }
+
+function ringSlot(i, N) {
+  const caps = [8, 14, 22, 30, 40, 50];
+  let ring = 0, start = 0;
+  while (i >= start + caps[ring]) { start += caps[ring]; ring++; }
+  const inRing = Math.min(N - start, caps[ring]), k = i - start;
+  const [ex, ey] = ringStretch(), R = 900 + ring * 800;
+  const ang = -Math.PI / 2 + (k + (ring % 2 ? .5 : 0)) / inRing * Math.PI * 2;
+  return { x: Math.cos(ang) * R * ex, y: Math.sin(ang) * R * ey };
+}
+
+/* ============ состояние шоу ============ */
+const photos = CFG.photos || [];
+const vids = (CFG.videos || []).map((v, i) => ({ ...v, i, landed: false }));
+const clusterBox = { minX: -260, minY: -260, maxX: 260, maxY: 260 };
+const worldBoxes = [];   // всё, что надо уместить в кадр
+let cakeEl, curVid = null, skipFn = null, vidWatch = null;
+const addBox = (x0, y0, x1, y1) => worldBoxes.push([x0, y0, x1, y1]);
+
+function buildTitle() {
+  const lines = CFG.title.split(',').map((s, i, a) => i < a.length - 1 ? s + ',' : s.trim());
+  const t = $('title'); let k = 0;
+  lines.forEach((ln, li) => {
+    const d = document.createElement('span'); d.className = 'ln';
+    [...ln.trim()].forEach(ch => {
+      const s = document.createElement('span'); s.className = 'ch';
+      s.textContent = ch === ' ' ? ' ' : ch; s.style.setProperty('--i', k++);
+      d.appendChild(s);
+    });
+    t.appendChild(d);
+  });
+}
+
+function buildTableDecor() {
+  // торт в центре
+  const cake = document.createElement('div'); cake.innerHTML = cakeSVG();
+  cakeEl = put(wb, cake, 0, -20, 300, 370);
+  cakeEl.style.opacity = 0;
+  // два подарка и золотые завитки: всё остальное оставляем воздуху
+  const items = [
+    { h: giftSVG(GIFTS[0]), x: 232, y: 205, w: 112, hh: 112, rot: 10 },
+    { h: giftSVG(GIFTS[1]), x: -238, y: -196, w: 104, hh: 104, rot: -12 },
+    { h: ribbonSVG(1), x: -215, y: 215, w: 150, hh: 112, rot: -20 },
+    { h: ribbonSVG(-1), x: 230, y: -210, w: 150, hh: 112, rot: 18 }
+  ];
+  items.forEach(o => {
+    const n = document.createElement('div'); n.innerHTML = o.h;
+    put(wb, n, o.x, o.y, o.w, o.hh, o.rot); n.style.opacity = 0; n.dataset.pop = 1;
+  });
+  addBox(-330, -330, 330, 330);
+}
+
+/* камера на полароиды */
+let photoNodes = [];
+function layoutPhotos() {
+  const P = photos.length, [fx, fy] = photoStretch();
+  let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
+  photos.forEach((ph, i) => {
+    const u = P > 1 ? i / (P - 1) : 0, r = 280 + 200 * Math.sqrt(u), a = -Math.PI / 2 + i * 2.399963;
+    const x = Math.cos(a) * r * fx, y = Math.sin(a) * r * fy;
+    const { n, w, h } = polaroid(ph, 1);
+    const rot = rand(-13, 13);
+    put(wb, n, x, y, w, h, rot); n.style.opacity = 0;
+    photoNodes.push({ n, x, y, w, h, rot });
+    minX = Math.min(minX, x - w * .6); maxX = Math.max(maxX, x + w * .6);
+    minY = Math.min(minY, y - h * .6); maxY = Math.max(maxY, y + h * .6);
+  });
+  Object.assign(clusterBox, { minX, minY, maxX, maxY });
+  addBox(minX, minY, maxX, maxY);
+}
+
+/* ============ кадры видео ============ */
+function buildFrames() {
+  vids.forEach((v, i) => {
+    const el = document.createElement('div');
+    el.className = 'vframe';
+    el.style.opacity = 0; el.style.pointerEvents = 'none';
+    const vd = document.createElement('video');
+    vd.setAttribute('playsinline', ''); vd.setAttribute('webkit-playsinline', '');
+    vd.preload = 'metadata'; vd.muted = true; vd.src = v.src + '#t=0.1';
+    el.appendChild(vd);
+    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = v.name || ('Поздравление ' + (i + 1)); el.appendChild(nm);
+    const pb = document.createElement('button'); pb.className = 'playbtn'; pb.textContent = '▶'; pb.setAttribute('aria-label', 'Включить'); el.appendChild(pb);
+    pb.addEventListener('click', () => { vd.muted = false; vd.play().catch(() => {}); pb.classList.remove('on'); });
+    wt.appendChild(el);
+    v.el = el; v.video = vd; v.btn = pb;
+    v.meta = new Promise(r => {
+      vd.addEventListener('loadedmetadata', () => r(true), { once: true });
+      vd.addEventListener('error', () => r(false), { once: true });
+      setTimeout(() => r(false), 7000);
+    });
+  });
+}
+function sizeFrame(v) {
+  const slot = ringSlot(v.i, vids.length);
+  let a = v.video.videoWidth && v.video.videoHeight ? v.video.videoWidth / v.video.videoHeight : 9 / 16;
+  a = clamp(a, .45, 2.2);
+  const MAX = 420;
+  const w = Math.round(a < 1 ? MAX * a : MAX), h = Math.round(a < 1 ? MAX : MAX / a);
+  v.vw = w; v.vh = h; v.W = w + 24; v.H = h + 64;
+  v.x = slot.x; v.y = slot.y; v.rot = (v.i % 2 ? 1 : -1) * rand(.6, 1.8);
+  v.video.style.width = w + 'px'; v.video.style.height = h + 'px';
+  v.el.style.width = v.W + 'px'; v.el.style.height = v.H + 'px';
+  v.el.dataset.x = v.x - v.W / 2; v.el.dataset.y = v.y - v.H / 2; v.el.dataset.r = v.rot;
+  v.el.style.transform = T(v.el, ' scale(0)');
+}
+function frameDecor(v) {
+  const { x, y, W, H, i } = v, made = [];
+  const add = (node, px, py, w, h, rot = 0) => { put(wb, node, px, py, w, h, rot); made.push(node); };
+  // один подарок и один золотой завиток вокруг каждого видео
+  const g = document.createElement('div'); g.innerHTML = giftSVG(GIFTS[i % GIFTS.length]);
+  add(g, x + (i % 2 ? 1 : -1) * (W / 2 - 4), y + H / 2 + 2, 108, 108, (i % 2 ? 1 : -1) * 9);
+  const r = document.createElement('div'); r.innerHTML = ribbonSVG(i % 2 ? -1 : 1);
+  add(r, x + (i % 2 ? -1 : 1) * (W / 2 + 38), y - H / 2 + 10, 150, 112, (i % 2 ? -1 : 1) * 14);
+  // две маленькие фотографии по бокам
+  if (photos.length) for (let k = 0; k < 2; k++) {
+    const ph = photos[(i * 3 + k * 4 + 1) % photos.length], { n, w, h } = polaroid(ph, .7);
+    const side = k ? 1 : -1;
+    add(n, x + side * (W / 2 + 40), y + (k ? -H * .02 : -H * .26), w, h, side * rand(5, 10));
+  }
+  made.forEach((n, k) => popIn(n, 520, 120 + k * 90));
+  v.decor = made;
+  addBox(x - W / 2 - 150, y - H / 2 - 110, x + W / 2 + 150, y + H / 2 + 120);
+}
+
+/* ============ шарики, конфетти ============ */
+const balloons = [], ambient = [], sparks = [];
+const shade = (hex, f) => {
+  const n = parseInt(hex.slice(1), 16), r = n >> 16, g = (n >> 8) & 255, b = n & 255;
+  const m = f < 0 ? 0 : 255, k = Math.abs(f);
+  return `rgb(${Math.round(lerp(r, m, k))},${Math.round(lerp(g, m, k))},${Math.round(lerp(b, m, k))})`;
+};
+function spawnBalloon(fromBottom = false) {
+  const r = clamp(vw * .085, 27, 50) * rand(.85, 1.15), c = BAL[(Math.random() * BAL.length) | 0];
+  balloons.push({
+    x: rand(r, vw - r), y: fromBottom ? vh + r * 2 : rand(r, vh - r), r, c, lt: shade(c, .55), dk: shade(c, -.28),
+    vx: rand(-30, 30), vy: fromBottom ? rand(-110, -70) : rand(-30, 30), ph: rand(0, 6.28), m: r * r
+  });
+}
+for (let i = 0; i < (vw < 600 ? 6 : 9); i++) spawnBalloon();
+for (let i = 0; i < 22; i++) ambient.push({ x: rand(0, vw), y: rand(0, vh), vy: rand(14, 34), ph: rand(0, 6.28), w: rand(4, 8), h: rand(5, 9), c: GOLDS[i % 3], rot: rand(0, 6.28), vr: rand(-1.5, 1.5), round: i % 3 !== 0 });
+
+function stepBalloons(dt) {
+  const t = performance.now() / 1000;
+  for (const b of balloons) {
+    b.vx += Math.sin(t * .7 + b.ph) * 16 * dt; b.vy += (Math.cos(t * .55 + b.ph * 1.7) * 12 - 2.5) * dt;
+    const sp = Math.hypot(b.vx, b.vy);
+    if (sp > 85) { b.vx *= 85 / sp; b.vy *= 85 / sp; }
+    else if (sp < 16) { const a = rand(0, 6.28); b.vx += Math.cos(a) * 30 * dt; b.vy += Math.sin(a) * 30 * dt; }
+    b.x += b.vx * dt; b.y += b.vy * dt;
+    if (b.x < b.r) { b.x = b.r; b.vx = Math.abs(b.vx); }
+    if (b.x > vw - b.r) { b.x = vw - b.r; b.vx = -Math.abs(b.vx); }
+    if (b.y < b.r) { b.y = b.r; b.vy = Math.abs(b.vy) * .9; }
+    if (b.y > vh + b.r * 2.4) { b.y = vh + b.r * 2.4; b.vy = -Math.abs(b.vy); }
+    if (b.y > vh - b.r * 3 && b.vy > 0) b.vy -= 40 * dt;   // низ экрана их мягко отталкивает вверх
+  }
+  for (let i = 0; i < balloons.length; i++) for (let j = i + 1; j < balloons.length; j++) {
+    const a = balloons[i], b = balloons[j], dx = b.x - a.x, dy = b.y - a.y, d = Math.hypot(dx, dy), md = a.r + b.r;
+    if (d < md && d > .01) {
+      const nx = dx / d, ny = dy / d, ov = (md - d) / 2;
+      a.x -= nx * ov; a.y -= ny * ov; b.x += nx * ov; b.y += ny * ov;
+      const rv = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+      if (rv < 0) {
+        const imp = -(1.9) * rv / (1 / a.m + 1 / b.m);
+        a.vx -= imp * nx / a.m; a.vy -= imp * ny / a.m; b.vx += imp * nx / b.m; b.vy += imp * ny / b.m;
+      }
+    }
+  }
+}
+function drawAir(dt) {
+  actx.setTransform(dpr, 0, 0, dpr, 0, 0); actx.clearRect(0, 0, vw, vh);
+  const t = performance.now() / 1000;
+  for (const p of ambient) {   // ленивое конфетти в воздухе
+    p.y += p.vy * dt; p.x += Math.sin(t * 1.4 + p.ph) * 22 * dt; p.rot += p.vr * dt;
+    if (p.y > vh + 20) { p.y = -20; p.x = rand(0, vw); }
+    actx.save(); actx.translate(p.x, p.y); actx.rotate(p.rot); actx.scale(1, Math.cos(t * 3 + p.ph));
+    actx.fillStyle = p.c; actx.globalAlpha = .9;
+    if (p.round) { actx.beginPath(); actx.arc(0, 0, p.w / 2, 0, 6.2832); actx.fill(); } else actx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    actx.restore();
+  }
+  actx.globalAlpha = 1;
+  for (const b of balloons) {
+    const rx = b.r * .86, ry = b.r;
+    actx.save(); actx.translate(b.x, b.y); actx.rotate(Math.sin(t * 1.3 + b.ph) * .07 + b.vx * .0018);
+    actx.strokeStyle = 'rgba(176,128,60,.75)'; actx.lineWidth = 1.3; actx.beginPath(); actx.moveTo(0, ry + 8);
+    actx.quadraticCurveTo(Math.sin(t * 2 + b.ph) * 12, ry + 8 + ry * .9, Math.sin(t * 1.6 + b.ph) * 9, ry + 8 + ry * 2.1); actx.stroke();
+    const g = actx.createRadialGradient(-rx * .35, -ry * .4, 2, 0, 0, ry * 1.15);
+    g.addColorStop(0, b.lt); g.addColorStop(.35, b.c); g.addColorStop(1, b.dk);
+    actx.fillStyle = g; actx.beginPath(); actx.ellipse(0, 0, rx, ry, 0, 0, 6.2832); actx.fill();
+    actx.beginPath(); actx.moveTo(0, ry - 1); actx.lineTo(-5.5, ry + 9); actx.lineTo(5.5, ry + 9); actx.closePath(); actx.fillStyle = b.dk; actx.fill();
+    actx.fillStyle = 'rgba(255,255,255,.7)'; actx.beginPath(); actx.ellipse(-rx * .45, -ry * .48, rx * .15, ry * .3, -.45, 0, 6.2832); actx.fill();
+    actx.fillStyle = 'rgba(255,255,255,.55)'; actx.beginPath(); actx.arc(-rx * .12, -ry * .78, rx * .07, 0, 6.2832); actx.fill();
+    actx.restore();
+  }
+}
+function burst(x, y, n = 40, power = 420) {
+  for (let i = 0; i < n; i++) {
+    const a = rand(0, 6.2832), sp = rand(.25, 1) * power;
+    sparks.push({ x, y, vx: Math.cos(a) * sp, vy: Math.sin(a) * sp - power * .35, life: 0, max: rand(1.2, 2.2),
+      c: GOLDS[(Math.random() * GOLDS.length) | 0], w: rand(5, 9), h: rand(6, 12), rot: rand(0, 6.28), vr: rand(-9, 9), ph: rand(0, 6.28), round: Math.random() < .55 });
+  }
+}
+function rain(n = 70) {
+  for (let i = 0; i < n; i++) sparks.push({ x: rand(0, vw), y: rand(-vh * .3, -10), vx: rand(-40, 40), vy: rand(80, 260), life: 0, max: rand(2.6, 4.2),
+    c: GOLDS[(Math.random() * GOLDS.length) | 0], w: rand(5, 9), h: rand(7, 13), rot: rand(0, 6.28), vr: rand(-6, 6), ph: rand(0, 6.28), round: Math.random() < .5 });
+}
+function drawBurst(dt) {
+  bctx.setTransform(dpr, 0, 0, dpr, 0, 0); bctx.clearRect(0, 0, vw, vh);
+  for (let i = sparks.length - 1; i >= 0; i--) {
+    const p = sparks[i]; p.life += dt;
+    if (p.life > p.max || p.y > vh + 30) { sparks.splice(i, 1); continue; }
+    p.vy += 520 * dt; p.vx *= (1 - 1.1 * dt); p.vy *= (1 - .6 * dt); p.x += p.vx * dt; p.y += p.vy * dt; p.rot += p.vr * dt;
+    bctx.save(); bctx.translate(p.x, p.y); bctx.rotate(p.rot); bctx.scale(1, Math.cos(p.life * 8 + p.ph));
+    bctx.globalAlpha = clamp((p.max - p.life) * 2, 0, 1); bctx.fillStyle = p.c;
+    if (p.round) { bctx.beginPath(); bctx.arc(0, 0, p.w / 2, 0, 6.2832); bctx.fill(); } else bctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+    bctx.restore();
+  }
+}
+const toScreen = (wx, wy) => [(wx - cam.x) * cam.s + vw / 2, (wy - cam.y) * cam.s + vh / 2];
+
+/* ============ главный цикл ============ */
+function loop(now) {
+  const dt = Math.min((now - last) / 1000, .05); last = now;
+  if (!paused && started) clock += dt * 1000;
+  else if (!started) clock += dt * 1000;
+  for (let i = timers.length - 1; i >= 0; i--) if (timers[i].t <= clock) { const t = timers.splice(i, 1)[0]; t.res(); }
+  stepTween(); applyCam();
+  stepBalloons(dt); drawAir(dt); drawBurst(dt);
+  if (vidWatch && !paused) { vidWatch.left -= dt; if (vidWatch.left <= 0) { const f = vidWatch.fn; vidWatch = null; f(); } }
+  requestAnimationFrame(loop);
+}
+function resize() {
+  vw = innerWidth; vh = innerHeight; dpr = Math.min(devicePixelRatio || 1, 2);
+  for (const c of [air, bur]) { c.width = vw * dpr; c.height = vh * dpr; }
+}
+addEventListener('resize', resize); resize();
+
+/* ============ сценарий ============ */
+function wholeBox(extra = []) {
+  let a = [1e9, 1e9, -1e9, -1e9];
+  for (const b of worldBoxes.concat(extra)) { a[0] = Math.min(a[0], b[0]); a[1] = Math.min(a[1], b[1]); a[2] = Math.max(a[2], b[2]); a[3] = Math.max(a[3], b[3]); }
+  return a;
+}
+function focusOn(v) { return fit(v.x - v.W / 2, v.y - v.H / 2, v.x + v.W / 2, v.y + v.H / 2, .86, .74, 2.2); }
+
+function playVideo(v) {
+  return new Promise(res => {
+    const vd = v.video; curVid = vd; let done = false;
+    const fin = () => { if (done) return; done = true; vd.removeEventListener('ended', fin); vd.removeEventListener('error', onErr); skipFn = null; vidWatch = null; res(); };
+    const onErr = () => setTimeout(fin, 1000);
+    vd.addEventListener('ended', fin); vd.addEventListener('error', onErr);
+    skipFn = fin;
+    vidWatch = { left: ((vd.duration && isFinite(vd.duration)) ? vd.duration : 12) + 10, fn: fin };
+    vd.loop = false; vd.muted = false;
+    const p = vd.play();
+    if (p && p.catch) p.catch(() => {   // телефон не дал включить со звуком: пробуем без звука и просим коснуться
+      vd.muted = true; vd.play().catch(() => {}); v.btn.classList.add('on');
+    });
+    vd.addEventListener('playing', () => v.btn.classList.remove('on'), { once: true });
+  });
+}
+
+function setDots(n, cur) {
+  const d = $('dots'); if (!d.children.length) for (let i = 0; i < n; i++) d.appendChild(document.createElement('i'));
+  [...d.children].forEach((e, i) => { e.className = i < cur ? 'done' : i === cur ? 'on' : ''; });
+}
+
+async function intro() {
+  buildTitle();
+  popIn(cakeEl, 800, 100); cakeEl.style.opacity = 1;
+  [...wb.querySelectorAll('[data-pop]')].forEach((n, k) => { n.style.opacity = 1; popIn(n, 600, 500 + k * 220); });
+  await wait(1700);
+  camTo(fit(clusterBox.minX, clusterBox.minY, clusterBox.maxX, clusterBox.maxY, .96, .9, .8), 1000 + photoNodes.length * 520, easeSine);
+  const far = Math.hypot(vw, vh) / Math.max(cam.s, .3) * .8 + 400;
+  for (let k = 0; k < photoNodes.length; k++) {
+    const p = photoNodes[k], ang = Math.atan2(p.y - cam.y, p.x - cam.x) + rand(-.5, .5);
+    const sx = p.x + Math.cos(ang) * far, sy = p.y + Math.sin(ang) * far, base = `translate(${p.n.dataset.x}px,${p.n.dataset.y}px)`;
+    const fx = sx - p.w / 2, fy = sy - p.h / 2;
+    p.n.style.opacity = 1;
+    p.n.animate([
+      { transform: `translate(${fx}px,${fy}px) rotate(${p.rot + rand(-200, 200)}deg) scale(.55)`, opacity: 0 },
+      { opacity: 1, offset: .12 },
+      { transform: `${base} rotate(${p.rot}deg) scale(1.1)`, offset: .84 },
+      { transform: `${base} rotate(${p.rot}deg) scale(1)` }
+    ], { duration: 1000 / SPEED, easing: 'cubic-bezier(.22,.7,.3,1)', fill: 'backwards' });
+    later(900, () => { const [sx2, sy2] = toScreen(p.x, p.y); burst(sx2, sy2, 12, 220); });
+    await wait(520);
+  }
+  await wait(1000);
+  $('title').classList.add('gone');
+}
+
+async function segment(v) {
+  await Promise.race([v.meta, wait(500)]);
+  sizeFrame(v);
+  const [a, b, c, d] = wholeBox([[v.x - v.W / 2 - 130, v.y - v.H / 2 - 100, v.x + v.W / 2 + 130, v.y + v.H / 2 + 100]]);
+  await camTo(fit(a, b, c, d, .92, .85, .8), 1500);
+  // кадр «приземляется»
+  v.el.style.opacity = 1;
+  v.el.animate([
+    { transform: T(v.el, ' scale(0) rotate(-12deg)'), opacity: 0 },
+    { transform: T(v.el, ' scale(1.18)'), opacity: 1, offset: .6 },
+    { transform: T(v.el, ' scale(1)'), opacity: 1 }
+  ], { duration: 650 / SPEED, easing: 'cubic-bezier(.3,1.2,.5,1)' });
+  v.el.style.transform = T(v.el);
+  frameDecor(v);
+  const [bx, by] = toScreen(v.x, v.y); burst(bx, by, 46, 480);
+  v.landed = true;
+  await wait(650);
+  await camTo(focusOn(v), 1800);
+  await wait(200);
+  await playVideo(v);
+  v.video.pause(); try { v.video.currentTime = .1; } catch (e) {}
+  await wait(350);
+}
+
+async function finale() {
+  $('ui').classList.add('hide'); $('dots').classList.add('hide');
+  const [a, b, c, d] = wholeBox();
+  const fcam = fit(a, b, c, d, .94, .86, .6);
+  const ca = camTo(fcam, 2600);
+  rain(90); later(800, () => rain(70)); later(1600, () => rain(70));
+  for (let i = 0; i < 9; i++) spawnBalloon(true);
+  await ca;
+  $('title').classList.remove('gone');
+  $('title').innerHTML = ''; buildTitle();
+  await wait(1800);
+  // «все собрались вместе»: рамки слетаются в общую мозаику, и все видео играют разом (без звука)
+  const L = vids.filter(v => v.landed), n = L.length, portrait = aspect() < 1.1;
+  const cols = portrait ? (n <= 6 ? 2 : n <= 12 ? 3 : Math.ceil(Math.sqrt(n * .8))) : Math.ceil(Math.sqrt(n * 1.7));
+  const rows = Math.ceil(n / cols), cw = 310, ch = 370;
+  L.forEach((v, k) => {
+    v.decor && v.decor.forEach(d => { d.style.transition = 'opacity .8s'; d.style.opacity = 0; });
+    const c = k % cols, r = Math.floor(k / cols), inRow = r === rows - 1 ? n - r * cols : cols;
+    const tx = -(cols - 1) * cw / 2 + c * cw + (cols - inRow) * cw / 2, ty = -(rows - 1) * ch / 2 + r * ch;
+    const kf = Math.min((cw - 16) / v.W, (ch - 16) / v.H), from = T(v.el);
+    v.el.dataset.x = tx - v.W / 2; v.el.dataset.y = ty - v.H / 2; v.el.dataset.r = 0;
+    const to = T(v.el, ` scale(${kf})`);
+    v.el.style.transform = to; v.el.style.zIndex = 3;
+    v.el.animate([{ transform: from }, { transform: to }], { duration: 1700 / SPEED, delay: k * 110 / SPEED, easing: 'cubic-bezier(.3,1.15,.5,1)', fill: 'backwards' });
+    v.x = tx; v.y = ty;
+  });
+  const bw = cols * cw, bh = rows * ch, mc = fit(-bw / 2, -bh / 2, bw / 2, bh / 2, .98, portrait ? .5 : .6, 1);
+  mc.y += vh * (portrait ? .08 : .1) / mc.s;
+  await camTo(mc, 2200);
+  L.slice(0, 6).forEach(v => { v.video.muted = true; v.video.loop = true; try { v.video.currentTime = .1; } catch (e) {} v.video.play().catch(() => {}); });
+  $('endText').textContent = CFG.endText || 'Мы тебя любим!';
+  $('end').classList.remove('hide');
+  later(300, () => rain(70));
+  for (let i = 0; i < 6; i++) later(900 + i * 1400, () => burst(rand(vw * .15, vw * .85), rand(vh * .12, vh * .45), 40, 460));
+}
+
+async function run() {
+  buildFrames();
+  // «разблокировать» видео жестом пользователя (важно для телефона, особенно iPhone)
+  vids.forEach(v => { v.video.muted = false; const p = v.video.play(); if (p && p.then) p.then(() => { v.video.pause(); try { v.video.currentTime = .1; } catch (e) {} v.video.muted = true; }).catch(() => { v.video.muted = true; }); });
+  await intro();
+  $('ui').classList.remove('hide'); $('dots').classList.remove('hide');
+  for (let i = 0; i < vids.length; i++) { setDots(vids.length, i); await segment(vids[i]); }
+  setDots(vids.length, vids.length);
+  await finale();
+}
+
+/* ============ кнопки ============ */
+$('startBtn').addEventListener('click', () => {
+  if (started) return; started = true;
+  $('start').classList.add('hide');
+  run();
+});
+$('pauseBtn').addEventListener('click', () => {
+  paused = !paused;
+  $('pauseBtn').textContent = paused ? '▶' : '❚❚';
+  $('title').classList.toggle('paused', paused);
+  if (curVid) { if (paused) curVid.pause(); else curVid.play().catch(() => {}); }
+});
+$('skipBtn').addEventListener('click', () => { if (paused) $('pauseBtn').click(); if (skipFn) skipFn(); });
+$('againBtn').addEventListener('click', () => location.reload());
+
+/* ============ запуск ============ */
+buildTableDecor();
+layoutPhotos();
+cam.s = clamp(Math.min(vw * .9 / 560, vh * .55 / 560), .5, 1);
+requestAnimationFrame(loop);
+window.__wish = { cam, vids, get clock() { return clock; }, burst };
+})();
+</script>
+</body>
+</html>
