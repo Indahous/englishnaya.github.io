@@ -61,7 +61,7 @@ window.WISH = {
       {src:'people/babulya/f06.jpg', w:1125, h:1500},
       {src:'people/babulya/f07.jpg', w:1125, h:1500}
     ] },
-  { name:'Папа и Ефим',
+  { name:'Папа',
     clips:['videos/papa1.mp4', 'videos/papa2.mp4', 'videos/papa3.mp4', 'videos/papa4.mp4'],
     photos:[
       {src:'people/papa/f01.jpg', w:1125, h:1500},

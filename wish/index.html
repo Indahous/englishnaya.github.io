@@ -560,7 +560,7 @@ addEventListener('resize', resize); resize();
 const A = (() => {
   const intro = new Audio('audio/intro.mp3'); intro.loop = true; intro.preload = 'auto';
   const music = new Audio('audio/music.mp3'); music.loop = true; music.preload = 'auto';
-  let ctx = null, gain = null, base = 0.55, duck = 1, introOn = true, musicOn = false, fadeT = 0;
+  let base = 0.6, duck = 1, introOn = true, musicOn = false;
   const btn = $('musicBtn');
   const tryIntro = () => {
     if (!introOn || !intro.paused) return;
@@ -574,10 +574,18 @@ const A = (() => {
   addEventListener('pointerdown', kick, { once: true, capture: true });
   addEventListener('keydown', kick, { once: true, capture: true });
   btn.addEventListener('click', e => { e.stopPropagation(); tryIntro(); });
-  function setGain(v, sec) {
-    if (!gain) return;
-    const t = ctx.currentTime; gain.gain.cancelScheduledValues(t);
-    gain.gain.setValueAtTime(gain.gain.value, t); gain.gain.linearRampToValueAtTime(v, t + sec);
+  // громкость элемента на iPhone менять нельзя: тогда вместо «тише» ставим музыку на паузу на время видео
+  const volOK = (() => { try { const a = new Audio(); a.volume = .5; return a.volume === .5; } catch (e) { return false; } })();
+  let volT = 0;
+  function fadeVol(el, to, ms) {
+    if (!volOK) return;
+    cancelAnimationFrame(volT);
+    const t0 = performance.now(), v0 = el.volume;
+    (function f() {
+      const k = Math.min(1, (performance.now() - t0) / ms);
+      try { el.volume = clamp(v0 + (to - v0) * k, 0, 1); } catch (e) {}
+      if (k < 1) volT = requestAnimationFrame(f);
+    })();
   }
   function stopIntro() {
     introOn = false; btn.classList.add('hide');
@@ -590,30 +598,28 @@ const A = (() => {
   }
   function startMusic() {          // вызывается из обработчика клика «Открыть»
     stopIntro();
-    try {
-      const AC = window.AudioContext || window.webkitAudioContext;
-      ctx = new AC(); gain = ctx.createGain(); gain.gain.value = 0;
-      ctx.createMediaElementSource(music).connect(gain); gain.connect(ctx.destination);
-      if (ctx.state === 'suspended') ctx.resume();
-      setGain(base * duck, 3);
-    } catch (e) { music.volume = base * duck; }   // запасной вариант без Web Audio
     musicOn = true;
-    music.play().catch(() => {});
+    if (volOK) music.volume = 0;
+    const p = music.play();
+    if (p && p.catch) p.catch(() => { musicOn = false; btn.textContent = '♪ Включить музыку'; btn.classList.remove('hide'); btn.onclick = () => { btn.classList.add('hide'); musicOn = true; music.play().then(() => fadeVol(music, base * duck, 1500)).catch(() => {}); }; });
+    fadeVol(music, base * duck, 2500);
   }
   function level(k) {               // k: 1 — полная громкость, ~0.12 — тише под видео
     duck = k;
-    if (gain) setGain(base * k, .8); else if (musicOn) music.volume = base * k;
+    if (!musicOn) return;
+    if (volOK) fadeVol(music, base * k, 800);
+    else if (k < .5) music.pause(); else music.play().catch(() => {});
   }
   function pause(on) {
     if (!musicOn) return;
-    if (on) music.pause(); else music.play().catch(() => {});
+    if (on) music.pause(); else if (duck >= .5 || volOK) music.play().catch(() => {});
   }
   document.addEventListener('visibilitychange', () => {
     if (document.hidden) { music.pause(); intro.pause(); }
-    else if (musicOn && !paused) { music.play().catch(() => {}); if (ctx && ctx.state === 'suspended') ctx.resume(); }
+    else if (musicOn && !paused && (duck >= .5 || volOK)) { music.play().catch(() => {}); }
     else if (introOn) tryIntro();
   });
-  return { startMusic, level, pause };
+  return { startMusic, level, pause, music, intro };
 })();
 
 /* ============ сценарий ============ */
@@ -672,31 +678,46 @@ async function intro() {
 }
 
 /* ---- фото падают вокруг рамки, пока идёт главное видео ---- */
-const PS = .5, PW = 150, PH = 172;
-function fallPads(v) {
-  const land = vw > vh;
-  return { px: land ? PW * 1.05 : PW * .35, py: land ? PH * .35 : PH * .95 };
-}
+const PS = .5, PW = 150, PH = 172, GAP = 14;
+function fallPads() { return vw > vh ? { px: PW + GAP, py: 0 } : { px: 0, py: PH + GAP }; }
 function focusClip(v, main) {
   if (!main) return focusOn(v);
-  const { px, py } = fallPads(v);
-  return fit(v.x - v.W / 2 - px, v.y - v.H / 2 - py, v.x + v.W / 2 + px, v.y + v.H / 2 + py, .96, .94, 2.2);
+  const { px, py } = fallPads();
+  return fit(v.x - v.W / 2 - px, v.y - v.H / 2 - py, v.x + v.W / 2 + px, v.y + v.H / 2 + py, .97, .95, 2.2);
 }
+/* места для фото: строго вне рамки, чтобы лица не прятались за видео */
 function planFall(v) {
-  const n = v.photoList.length, { px, py } = fallPads(v), rnd = mulberry(700 + v.i);
-  const rx = v.W / 2 + px * .55, ry = v.H / 2 + py * .55;
-  const idx = [...Array(n).keys()];
-  for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
-  v.fall = idx.map((pi, j) => {
-    const ang = -Math.PI / 2 + (pi / n) * Math.PI * 2 + (rnd() - .5) * .22;
-    return { ph: v.photoList[j], x: v.x + Math.cos(ang) * rx, y: v.y + Math.sin(ang) * ry, rot: (rnd() - .5) * 26, done: false };
+  const land = vw > vh, cam1 = focusClip(v, true), s = cam1.s, Vw = vw / s, Vh = vh / s, rnd = mulberry(700 + v.i), slots = [];
+  if (!land) {
+    const n = Math.max(1, Math.floor(Vw * .98 / (PW + 4))), cw = Math.min(Vw * .98 / n, PW + 40);
+    for (let c = 0; c < n; c++) {
+      const x = v.x - (n - 1) * cw / 2 + c * cw;
+      slots.push({ x, y: v.y - v.H / 2 - PH / 2 - GAP / 2 }, { x, y: v.y + v.H / 2 + PH / 2 + GAP / 2 });
+    }
+  } else {
+    const n = Math.max(1, Math.floor(Vh * .95 / (PH + 4))), ch = Math.min(Vh * .95 / n, PH + 40);
+    for (let c = 0; c < n; c++) {
+      const y = v.y - (n - 1) * ch / 2 + c * ch;
+      slots.push({ x: v.x - v.W / 2 - PW / 2 - GAP / 2, y }, { x: v.x + v.W / 2 + PW / 2 + GAP / 2, y });
+    }
+  }
+  for (let i = slots.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [slots[i], slots[j]] = [slots[j], slots[i]]; }
+  v.slots = slots.map(o => ({ ...o, cur: null }));
+  v.fall = v.photoList.map((ph, j) => {
+    const sl = v.slots[j % v.slots.length];
+    return { ph, slot: sl, x: sl.x + (rnd() - .5) * 10, y: sl.y + (rnd() - .5) * 8, rot: (rnd() - .5) * 14, done: false };
   });
-  addBox(v.x - rx - PW * .7, v.y - ry - PH * .7, v.x + rx + PW * .7, v.y + ry + PH * .7);
+  const xs = slots.map(o => o.x), ys = slots.map(o => o.y);
+  addBox(Math.min(v.x - v.W / 2, ...xs) - PW / 2, Math.min(v.y - v.H / 2, ...ys) - PH / 2, Math.max(v.x + v.W / 2, ...xs) + PW / 2, Math.max(v.y + v.H / 2, ...ys) + PH / 2);
 }
 function dropPhoto(it) {
   if (it.done) return; it.done = true;
   const { n, w, h } = polaroid(it.ph, PS);
   put(wb, n, it.x, it.y, w, h, it.rot);
+  const old = it.slot.cur; it.slot.cur = n;
+  if (old) {   // место уже занято: прежнее фото мягко уходит, когда новое приземляется
+    later(1100, () => { old.style.transition = 'opacity .6s'; old.style.opacity = 0; setTimeout(() => old.remove(), 700); });
+  }
   const bx = n.dataset.x, by = n.dataset.y, topY = cam.y - vh / 2 / cam.s - h - 40, sx = +bx + rand(-70, 70), r0 = it.rot + rand(-90, 90);
   n.animate([
     { transform: `translate(${sx}px,${topY}px) rotate(${r0}deg) scale(.9)`, opacity: 0, easing: 'cubic-bezier(.4,0,.85,.55)' },
@@ -842,7 +863,7 @@ buildTableDecor();
 layoutPhotos();
 cam.s = clamp(Math.min(vw * .9 / 560, vh * .55 / 560), .5, 1);
 requestAnimationFrame(loop);
-window.__wish = { cam, vids, get clock() { return clock; }, burst };
+window.__wish = { A, cam, vids, get clock() { return clock; }, burst };
 })();
 </script>
 </body>
