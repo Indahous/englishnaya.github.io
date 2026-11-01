@@ -93,6 +93,8 @@
   }
 
   /* кнопки управления */
+  #musicBtn { margin-top: 18px; border: 0; border-radius: 22px; padding: 10px 18px; background: rgba(255,255,255,.85); color: #8a2a4a; font: 800 15px Nunito, system-ui, sans-serif; box-shadow: 0 4px 14px rgba(150,60,80,.25); }
+  #musicBtn.hide { display: none; }
   #ui { position: fixed; z-index: 8; right: calc(env(safe-area-inset-right, 0px) + 12px); top: calc(env(safe-area-inset-top, 0px) + 12px); display: flex; gap: 10px; transition: opacity .5s; }
   #ui.hide { opacity: 0; pointer-events: none; }
   #ui button { width: 42px; height: 42px; border-radius: 50%; border: 0; background: rgba(255,255,255,.8); color: var(--ink); font-size: 15px; font-weight: 900;
@@ -124,6 +126,7 @@
   <h1>Катюша,<br>это тебе!</h1>
   <p>Включи звук и нажми кнопку</p>
   <button class="bigbtn" id="startBtn">Открыть</button>
+  <button id="musicBtn" class="hide" type="button">♪ Включить музыку</button>
 </section>
 
 <section class="screen hide" id="end">
@@ -548,6 +551,66 @@ function resize() {
 }
 addEventListener('resize', resize); resize();
 
+/* ============ музыка ============ */
+const A = (() => {
+  const intro = new Audio('audio/intro.mp3'); intro.loop = true; intro.preload = 'auto';
+  const music = new Audio('audio/music.mp3'); music.loop = true; music.preload = 'auto';
+  let ctx = null, gain = null, base = 0.55, duck = 1, introOn = true, musicOn = false, fadeT = 0;
+  const btn = $('musicBtn');
+  const tryIntro = () => {
+    if (!introOn || !intro.paused) return;
+    const p = intro.play();
+    if (p && p.then) p.then(() => btn.classList.add('hide'), () => btn.classList.remove('hide'));
+  };
+  tryIntro();
+  intro.addEventListener('canplay', tryIntro, { once: true });
+  // браузеры не дают играть со звуком без касания — включаем при первом касании
+  const kick = () => { tryIntro(); };
+  addEventListener('pointerdown', kick, { once: true, capture: true });
+  addEventListener('keydown', kick, { once: true, capture: true });
+  btn.addEventListener('click', e => { e.stopPropagation(); tryIntro(); });
+  function setGain(v, sec) {
+    if (!gain) return;
+    const t = ctx.currentTime; gain.gain.cancelScheduledValues(t);
+    gain.gain.setValueAtTime(gain.gain.value, t); gain.gain.linearRampToValueAtTime(v, t + sec);
+  }
+  function stopIntro() {
+    introOn = false; btn.classList.add('hide');
+    const t0 = performance.now(), v0 = intro.volume;
+    (function f() {
+      const k = Math.min(1, (performance.now() - t0) / 700);
+      try { intro.volume = v0 * (1 - k); } catch (e) {}
+      if (k < 1) requestAnimationFrame(f); else { intro.pause(); intro.currentTime = 0; }
+    })();
+  }
+  function startMusic() {          // вызывается из обработчика клика «Открыть»
+    stopIntro();
+    try {
+      const AC = window.AudioContext || window.webkitAudioContext;
+      ctx = new AC(); gain = ctx.createGain(); gain.gain.value = 0;
+      ctx.createMediaElementSource(music).connect(gain); gain.connect(ctx.destination);
+      if (ctx.state === 'suspended') ctx.resume();
+      setGain(base * duck, 3);
+    } catch (e) { music.volume = base * duck; }   // запасной вариант без Web Audio
+    musicOn = true;
+    music.play().catch(() => {});
+  }
+  function level(k) {               // k: 1 — полная громкость, ~0.12 — тише под видео
+    duck = k;
+    if (gain) setGain(base * k, .8); else if (musicOn) music.volume = base * k;
+  }
+  function pause(on) {
+    if (!musicOn) return;
+    if (on) music.pause(); else music.play().catch(() => {});
+  }
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { music.pause(); intro.pause(); }
+    else if (musicOn && !paused) { music.play().catch(() => {}); if (ctx && ctx.state === 'suspended') ctx.resume(); }
+    else if (introOn) tryIntro();
+  });
+  return { startMusic, level, pause };
+})();
+
 /* ============ сценарий ============ */
 function wholeBox(extra = []) {
   let a = [1e9, 1e9, -1e9, -1e9];
@@ -559,12 +622,12 @@ function focusOn(v) { return fit(v.x - v.W / 2, v.y - v.H / 2, v.x + v.W / 2, v.
 function playVideo(v) {
   return new Promise(res => {
     const vd = v.video; curVid = vd; let done = false;
-    const fin = () => { if (done) return; done = true; vd.removeEventListener('ended', fin); vd.removeEventListener('error', onErr); skipFn = null; vidWatch = null; res(); };
+    const fin = () => { if (done) return; done = true; vd.removeEventListener('ended', fin); vd.removeEventListener('error', onErr); skipFn = null; vidWatch = null; A.level(1); res(); };
     const onErr = () => setTimeout(fin, 1000);
     vd.addEventListener('ended', fin); vd.addEventListener('error', onErr);
     skipFn = fin;
     vidWatch = { left: ((vd.duration && isFinite(vd.duration)) ? vd.duration : 12) + 10, fn: fin };
-    vd.loop = false; vd.muted = false;
+    vd.loop = false; vd.muted = false; A.level(.1);
     const p = vd.play();
     if (p && p.catch) p.catch(() => {   // телефон не дал включить со звуком: пробуем без звука и просим коснуться
       vd.muted = true; vd.play().catch(() => {}); v.btn.classList.add('on');
@@ -676,7 +739,7 @@ async function run() {
 
 /* ============ кнопки ============ */
 $('startBtn').addEventListener('click', () => {
-  if (started) return; started = true;
+  if (started) return; started = true; A.startMusic();
   $('start').classList.add('hide');
   run();
 });
@@ -684,6 +747,7 @@ $('pauseBtn').addEventListener('click', () => {
   paused = !paused;
   $('pauseBtn').textContent = paused ? '▶' : '❚❚';
   $('title').classList.toggle('paused', paused);
+  A.pause(paused);
   if (curVid) { if (paused) curVid.pause(); else curVid.play().catch(() => {}); }
 });
 $('skipBtn').addEventListener('click', () => { if (paused) $('pauseBtn').click(); if (skipFn) skipFn(); });
