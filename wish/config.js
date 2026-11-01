@@ -1,6 +1,6 @@
 /* ===== НАСТРОЙКИ ПРАЗДНИКА =====
-   Чтобы добавить поздравление: положите mp4 в папку videos/ и добавьте строку в список videos.
-   name   - подпись под видео (например «Бабушка Надя»)
+   Поздравитель: name — подпись; clips — ролики по порядку (последний — главное видео); photos — фото, которые падают вокруг главного видео.
+   
    Порядок строк = порядок показа.
 */
 window.WISH = {
@@ -32,11 +32,48 @@ window.WISH = {
   {src:'photos/p23.jpg', w:1350, h:1800},
   {src:'photos/p24.jpg', w:1350, h:1800}
 ],
-  videos: [
-    { src: 'videos/demo1.mp4', name: 'Поздравитель 1' },
-    { src: 'videos/demo2.mp4', name: 'Поздравитель 2' },
-    { src: 'videos/demo3.mp4', name: 'Поздравитель 3' },
-    { src: 'videos/demo4.mp4', name: 'Поздравитель 4' },
-    { src: 'videos/demo5.mp4', name: 'Поздравитель 5' }
-  ]
+  videos:[
+  { name:'Мама',
+    clips:['videos/mama1.mp4', 'videos/mama2.mp4', 'videos/mama3.mp4'],
+    photos:[
+      {src:'people/mama/f01.jpg', w:640, h:480},
+      {src:'people/mama/f02.jpg', w:1125, h:1500},
+      {src:'people/mama/f03.jpg', w:1500, h:1125},
+      {src:'people/mama/f04.jpg', w:1125, h:1500},
+      {src:'people/mama/f05.jpg', w:1500, h:1125},
+      {src:'people/mama/f06.jpg', w:1125, h:1500},
+      {src:'people/mama/f07.jpg', w:1500, h:1000},
+      {src:'people/mama/f08.jpg', w:1125, h:1500},
+      {src:'people/mama/f09.jpg', w:1125, h:1500},
+      {src:'people/mama/f10.jpg', w:1125, h:1500},
+      {src:'people/mama/f11.jpg', w:1125, h:1500},
+      {src:'people/mama/f12.jpg', w:1125, h:1500},
+      {src:'people/mama/f13.jpg', w:1125, h:1500}
+    ] },
+  { name:'Бабуля',
+    clips:['videos/bab1.mp4', 'videos/bab2.mp4', 'videos/bab3.mp4'],
+    photos:[
+      {src:'people/babulya/f01.jpg', w:1500, h:1125},
+      {src:'people/babulya/f02.jpg', w:1125, h:1500},
+      {src:'people/babulya/f03.jpg', w:1500, h:1125},
+      {src:'people/babulya/f04.jpg', w:1278, h:1500},
+      {src:'people/babulya/f05.jpg', w:845, h:1500},
+      {src:'people/babulya/f06.jpg', w:1125, h:1500},
+      {src:'people/babulya/f07.jpg', w:1125, h:1500}
+    ] },
+  { name:'Папа и Ефим',
+    clips:['videos/papa1.mp4', 'videos/papa2.mp4', 'videos/papa3.mp4', 'videos/papa4.mp4'],
+    photos:[
+      {src:'people/papa/f01.jpg', w:1125, h:1500},
+      {src:'people/papa/f02.jpg', w:1125, h:1500},
+      {src:'people/papa/f03.jpg', w:844, h:1500},
+      {src:'people/papa/f04.jpg', w:1125, h:1500},
+      {src:'people/papa/f05.jpg', w:1125, h:1500},
+      {src:'people/papa/f06.jpg', w:1125, h:1500},
+      {src:'people/papa/f07.jpg', w:1125, h:1500},
+      {src:'people/papa/f08.jpg', w:1125, h:1500},
+      {src:'people/papa/f09.jpg', w:1125, h:1500},
+      {src:'people/papa/f10.jpg', w:1125, h:1500}
+    ] }
+]
 };

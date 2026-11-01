@@ -320,14 +320,14 @@ function ringSlot(i, N) {
   let ring = 0, start = 0;
   while (i >= start + caps[ring]) { start += caps[ring]; ring++; }
   const inRing = Math.min(N - start, caps[ring]), k = i - start;
-  const [ex, ey] = ringStretch(), R = 900 + ring * 800;
+  const [ex, ey] = ringStretch(), R = 1950 + ring * 1200;
   const ang = -Math.PI / 2 + (k + (ring % 2 ? .5 : 0)) / inRing * Math.PI * 2;
   return { x: Math.cos(ang) * R * ex, y: Math.sin(ang) * R * ey };
 }
 
 /* ============ состояние шоу ============ */
 const photos = CFG.photos || [];
-const vids = (CFG.videos || []).map((v, i) => ({ ...v, i, landed: false }));
+const vids = (CFG.videos || []).map((v, i) => ({ ...v, clips: v.clips || [v.src], photoList: v.photos || [], i, landed: false }));
 const clusterBox = { minX: -260, minY: -260, maxX: 260, maxY: 260 };
 const worldBoxes = [];   // всё, что надо уместить в кадр
 let cakeEl, curVid = null, skipFn = null, vidWatch = null;
@@ -391,34 +391,39 @@ function buildFrames() {
     const el = document.createElement('div');
     el.className = 'vframe';
     el.style.opacity = 0; el.style.pointerEvents = 'none';
-    const vd = document.createElement('video');
-    vd.setAttribute('playsinline', ''); vd.setAttribute('webkit-playsinline', '');
-    vd.preload = 'metadata'; vd.muted = true; vd.src = v.src + '#t=0.1';
-    el.appendChild(vd);
+    v.vds = v.clips.map(src => {
+      const vd = document.createElement('video');
+      vd.setAttribute('playsinline', ''); vd.setAttribute('webkit-playsinline', '');
+      vd.preload = 'metadata'; vd.muted = true; vd.src = src + '#t=0.1';
+      el.appendChild(vd); return vd;
+    });
     const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = v.name || ('Поздравление ' + (i + 1)); el.appendChild(nm);
     const pb = document.createElement('button'); pb.className = 'playbtn'; pb.textContent = '▶'; pb.setAttribute('aria-label', 'Включить'); el.appendChild(pb);
-    pb.addEventListener('click', () => { vd.muted = false; vd.play().catch(() => {}); pb.classList.remove('on'); });
+    pb.addEventListener('click', () => { const vd = v.video; vd.muted = false; vd.play().catch(() => {}); pb.classList.remove('on'); });
     wt.appendChild(el);
-    v.el = el; v.video = vd; v.btn = pb;
-    v.meta = new Promise(r => {
+    v.el = el; v.btn = pb; v.video = v.vds[0];
+    v.metas = v.vds.map(vd => new Promise(r => {
       vd.addEventListener('loadedmetadata', () => r(true), { once: true });
       vd.addEventListener('error', () => r(false), { once: true });
       setTimeout(() => r(false), 7000);
-    });
+    }));
+    v.meta = v.metas[0];
   });
 }
-function sizeFrame(v) {
-  const slot = ringSlot(v.i, vids.length);
-  let a = v.video.videoWidth && v.video.videoHeight ? v.video.videoWidth / v.video.videoHeight : 9 / 16;
+function sizeFrame(v, k = 0) {
+  const vd = v.vds[k]; v.video = vd; v.k = k;
+  v.vds.forEach(d => { d.style.display = d === vd ? 'block' : 'none'; });
+  if (v.x === undefined) { const slot = ringSlot(v.i, vids.length); v.x = slot.x; v.y = slot.y; }
+  let a = vd.videoWidth && vd.videoHeight ? vd.videoWidth / vd.videoHeight : 9 / 16;
   a = clamp(a, .45, 2.2);
   const MAX = 420;
   const w = Math.round(a < 1 ? MAX * a : MAX), h = Math.round(a < 1 ? MAX : MAX / a);
   v.vw = w; v.vh = h; v.W = w + 24; v.H = h + 64;
-  v.x = slot.x; v.y = slot.y; v.rot = (v.i % 2 ? 1 : -1) * rand(.6, 1.8);
-  v.video.style.width = w + 'px'; v.video.style.height = h + 'px';
+  v.rot = (v.i % 2 ? 1 : -1) * rand(.6, 1.8);
+  vd.style.width = w + 'px'; vd.style.height = h + 'px';
   v.el.style.width = v.W + 'px'; v.el.style.height = v.H + 'px';
   v.el.dataset.x = v.x - v.W / 2; v.el.dataset.y = v.y - v.H / 2; v.el.dataset.r = v.rot;
-  v.el.style.transform = T(v.el, ' scale(0)');
+  if (k === 0) v.el.style.transform = T(v.el, ' scale(0)');
 }
 function frameDecor(v) {
   const { x, y, W, H, i } = v, made = [];
@@ -429,7 +434,7 @@ function frameDecor(v) {
   const r = document.createElement('div'); r.innerHTML = ribbonSVG(i % 2 ? -1 : 1);
   add(r, x + (i % 2 ? -1 : 1) * (W / 2 + 38), y - H / 2 + 10, 150, 112, (i % 2 ? -1 : 1) * 14);
   // две маленькие фотографии по бокам
-  if (photos.length) for (let k = 0; k < 2; k++) {
+  if (photos.length && !v.photoList.length) for (let k = 0; k < 2; k++) {
     const ph = photos[(i * 3 + k * 4 + 1) % photos.length], { n, w, h } = polaroid(ph, .7);
     const side = k ? 1 : -1;
     add(n, x + side * (W / 2 + 40), y + (k ? -H * .02 : -H * .26), w, h, side * rand(5, 10));
@@ -666,9 +671,81 @@ async function intro() {
   $('title').classList.add('gone');
 }
 
+/* ---- фото падают вокруг рамки, пока идёт главное видео ---- */
+const PS = .5, PW = 150, PH = 172;
+function fallPads(v) {
+  const land = vw > vh;
+  return { px: land ? PW * 1.05 : PW * .35, py: land ? PH * .35 : PH * .95 };
+}
+function focusClip(v, main) {
+  if (!main) return focusOn(v);
+  const { px, py } = fallPads(v);
+  return fit(v.x - v.W / 2 - px, v.y - v.H / 2 - py, v.x + v.W / 2 + px, v.y + v.H / 2 + py, .96, .94, 2.2);
+}
+function planFall(v) {
+  const n = v.photoList.length, { px, py } = fallPads(v), rnd = mulberry(700 + v.i);
+  const rx = v.W / 2 + px * .55, ry = v.H / 2 + py * .55;
+  const idx = [...Array(n).keys()];
+  for (let i = n - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [idx[i], idx[j]] = [idx[j], idx[i]]; }
+  v.fall = idx.map((pi, j) => {
+    const ang = -Math.PI / 2 + (pi / n) * Math.PI * 2 + (rnd() - .5) * .22;
+    return { ph: v.photoList[j], x: v.x + Math.cos(ang) * rx, y: v.y + Math.sin(ang) * ry, rot: (rnd() - .5) * 26, done: false };
+  });
+  addBox(v.x - rx - PW * .7, v.y - ry - PH * .7, v.x + rx + PW * .7, v.y + ry + PH * .7);
+}
+function dropPhoto(it) {
+  if (it.done) return; it.done = true;
+  const { n, w, h } = polaroid(it.ph, PS);
+  put(wb, n, it.x, it.y, w, h, it.rot);
+  const bx = n.dataset.x, by = n.dataset.y, topY = cam.y - vh / 2 / cam.s - h - 40, sx = +bx + rand(-70, 70), r0 = it.rot + rand(-90, 90);
+  n.animate([
+    { transform: `translate(${sx}px,${topY}px) rotate(${r0}deg) scale(.9)`, opacity: 0, easing: 'cubic-bezier(.4,0,.85,.55)' },
+    { opacity: 1, offset: .08, transform: `translate(${sx + (bx - sx) * .08}px,${topY + (by - topY) * .02}px) rotate(${r0}deg) scale(.92)`, easing: 'cubic-bezier(.4,0,.85,.55)' },
+    { transform: `translate(${bx}px,${by}px) rotate(${it.rot}deg) scale(1.08)`, opacity: 1, offset: .72, easing: 'ease-out' },
+    { transform: `translate(${bx}px,${+by - 14}px) rotate(${it.rot}deg) scale(1.02)`, opacity: 1, offset: .86, easing: 'ease-in' },
+    { transform: `translate(${bx}px,${by}px) rotate(${it.rot}deg) scale(1)`, opacity: 1 }
+  ], { duration: 1500 / SPEED, fill: 'backwards' });
+  later(1080, () => { const [x, y] = toScreen(it.x, it.y); burst(x, y, 9, 200); });
+}
+function startFall(v, durMs) {
+  planFall(v);
+  const n = v.fall.length, gap = clamp((durMs * .78 - 1200) / n, 650, 4200);
+  v.fall.forEach((it, j) => later(1200 + gap * j, () => dropPhoto(it)));
+}
+function finishFall(v) {   // видео кончилось раньше, чем упали все фото: роняем остальные
+  let k = 0; (v.fall || []).forEach(it => { if (!it.done) { later(120 * k++, () => dropPhoto(it)); } });
+  return k;
+}
+
+/* ---- переход между роликами одного поздравителя ---- */
+async function clipSwap(v, k, main) {
+  const el = v.el, dir = k % 2 ? 1 : -1;
+  const out = el.animate([
+    { transform: T(el), opacity: 1 },
+    { transform: T(el, ` scale(1.06) rotate(${-dir * 3}deg)`), opacity: 1, offset: .25 },
+    { transform: T(el, ` scale(.15) rotate(${dir * 24}deg)`), opacity: 0 }
+  ], { duration: 520 / SPEED, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' });
+  const [cx, cy] = toScreen(v.x, v.y); burst(cx, cy, 30, 380);
+  await wait(540);
+  await Promise.race([v.metas[k], wait(2500)]);
+  sizeFrame(v, k);
+  el.style.transform = T(el);
+  el.animate([
+    { transform: T(el, ` scale(0) rotate(${dir * 16}deg)`), opacity: 0 },
+    { transform: T(el, ' scale(1.14)'), opacity: 1, offset: .62 },
+    { transform: T(el, ' scale(1)'), opacity: 1 }
+  ], { duration: 700 / SPEED, easing: 'cubic-bezier(.3,1.2,.5,1)' });
+  out.cancel();
+  rain(26);
+  const [bx, by] = toScreen(v.x, v.y); burst(bx, by, 40, 430);
+  await camTo(focusClip(v, main), 900);
+}
+
 async function segment(v) {
   await Promise.race([v.meta, wait(500)]);
-  sizeFrame(v);
+  sizeFrame(v, 0);
+  v.photoList.forEach(p => { const im = new Image(); im.src = p.src; });
+  const last = v.vds.length - 1, hasPhotos = v.photoList.length > 0;
   const [a, b, c, d] = wholeBox([[v.x - v.W / 2 - 130, v.y - v.H / 2 - 100, v.x + v.W / 2 + 130, v.y + v.H / 2 + 100]]);
   await camTo(fit(a, b, c, d, .92, .85, .8), 1500);
   // кадр «приземляется»
@@ -683,10 +760,17 @@ async function segment(v) {
   const [bx, by] = toScreen(v.x, v.y); burst(bx, by, 46, 480);
   v.landed = true;
   await wait(650);
-  await camTo(focusOn(v), 1800);
-  await wait(200);
-  await playVideo(v);
-  v.video.pause(); try { v.video.currentTime = .1; } catch (e) {}
+  for (let k = 0; k <= last; k++) {
+    const main = k === last && hasPhotos;
+    if (k === 0) await camTo(focusClip(v, main), 1800); else await clipSwap(v, k, main);
+    const nx = v.vds[k + 1]; if (nx) { nx.preload = 'auto'; try { nx.load(); } catch (e) {} }
+    await wait(200);
+    if (main) { const dd = v.video.duration; startFall(v, ((dd && isFinite(dd)) ? dd : 30) * 1000); }
+    await playVideo(v);
+    v.video.pause(); try { v.video.currentTime = .1; } catch (e) {}
+    if (main) { const left = finishFall(v); await wait(1700 + left * 120); }
+    else await wait(250);
+  }
   await wait(350);
 }
 
@@ -729,7 +813,7 @@ async function finale() {
 async function run() {
   buildFrames();
   // «разблокировать» видео жестом пользователя (важно для телефона, особенно iPhone)
-  vids.forEach(v => { v.video.muted = false; const p = v.video.play(); if (p && p.then) p.then(() => { v.video.pause(); try { v.video.currentTime = .1; } catch (e) {} v.video.muted = true; }).catch(() => { v.video.muted = true; }); });
+  vids.forEach(v => v.vds.forEach(vd => { vd.muted = false; const p = vd.play(); if (p && p.then) p.then(() => { vd.pause(); try { vd.currentTime = .1; } catch (e) {} vd.muted = true; }).catch(() => { vd.muted = true; }); }));
   await intro();
   $('ui').classList.remove('hide'); $('dots').classList.remove('hide');
   for (let i = 0; i < vids.length; i++) { setDots(vids.length, i); await segment(vids[i]); }
