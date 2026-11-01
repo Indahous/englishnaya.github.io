@@ -41,6 +41,7 @@
   /* рамка под видео */
   .vframe { background: #fff; padding: 12px 12px 52px; border-radius: 14px;
     box-shadow: 0 0 0 1px rgba(201, 147, 56, .5), 0 22px 46px rgba(150, 70, 80, .32); }
+  .vframe .poster { display: block; border-radius: 7px; object-fit: cover; }
   .vframe video { display: block; border-radius: 7px; background: #f0d9d3; object-fit: cover; }
   .vframe .name { position: absolute; left: 10px; right: 10px; bottom: 9px; text-align: center; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     font: 400 28px/1.35 var(--script); color: var(--gold); }
@@ -387,33 +388,50 @@ function layoutPhotos() {
 }
 
 /* ============ кадры видео ============ */
-function buildFrames() {
-  vids.forEach((v, i) => {
-    const el = document.createElement('div');
-    el.className = 'vframe';
-    el.style.opacity = 0; el.style.pointerEvents = 'none';
-    v.vds = v.clips.map(src => {
-      const vd = document.createElement('video');
-      vd.setAttribute('playsinline', ''); vd.setAttribute('webkit-playsinline', '');
-      vd.preload = 'metadata'; vd.muted = true; vd.src = src + '#t=0.1';
-      el.appendChild(vd); return vd;
-    });
-    const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = v.name || ('Поздравление ' + (i + 1)); el.appendChild(nm);
-    const pb = document.createElement('button'); pb.className = 'playbtn'; pb.textContent = '▶'; pb.setAttribute('aria-label', 'Включить'); el.appendChild(pb);
-    pb.addEventListener('click', () => { const vd = v.video; vd.muted = false; vd.play().catch(() => {}); pb.classList.remove('on'); });
-    wt.appendChild(el);
-    v.el = el; v.btn = pb; v.video = v.vds[0];
-    v.metas = v.vds.map(vd => new Promise(r => {
-      vd.addEventListener('loadedmetadata', () => r(true), { once: true });
-      vd.addEventListener('error', () => r(false), { once: true });
-      setTimeout(() => r(false), 7000);
-    }));
-    v.meta = v.metas[0];
-  });
+/* Один общий плеер на все ролики: так телефон не держит десятки видео в памяти.
+   Рамка поздравителя создаётся, когда до него дошла очередь; после ролика в рамке остаётся снимок. */
+const player = document.createElement('video');
+player.setAttribute('playsinline', ''); player.setAttribute('webkit-playsinline', ''); player.preload = 'auto'; player.muted = true;
+function makeFrame(v) {
+  const el = document.createElement('div');
+  el.className = 'vframe';
+  el.style.opacity = 0; el.style.pointerEvents = 'none';
+  const poster = document.createElement('img'); poster.className = 'poster'; poster.alt = ''; poster.style.display = 'none'; el.appendChild(poster);
+  const nm = document.createElement('div'); nm.className = 'name'; nm.textContent = v.name || ('Поздравление ' + (v.i + 1)); el.appendChild(nm);
+  const pb = document.createElement('button'); pb.className = 'playbtn'; pb.textContent = '▶'; pb.setAttribute('aria-label', 'Включить'); el.appendChild(pb);
+  pb.addEventListener('click', () => { player.muted = false; player.play().catch(() => {}); pb.classList.remove('on'); });
+  wt.appendChild(el);
+  v.el = el; v.btn = pb; v.poster = poster;
 }
-function sizeFrame(v, k = 0) {
-  const vd = v.vds[k]; v.video = vd; v.k = k;
-  v.vds.forEach(d => { d.style.display = d === vd ? 'block' : 'none'; });
+const once = (el, ev, ms) => new Promise(r => { let t; const f = ok => { clearTimeout(t); r(ok); }; el.addEventListener(ev, () => f(true), { once: true }); el.addEventListener('error', () => f(false), { once: true }); t = setTimeout(() => f(false), ms); });
+async function loadClip(v, k) {   // ставим ролик в общий плеер и переносим плеер в рамку
+  player.pause(); player.muted = true; player.loop = false;
+  player.src = v.clips[k]; try { player.load(); } catch (e) {}
+  await once(player, 'loadedmetadata', 8000);
+  v.video = player; v.k = k;
+  sizeFrame(v, k, player);
+  v.poster.style.display = 'none';
+  v.el.insertBefore(player, v.el.firstChild); player.style.display = 'block';
+  try { player.currentTime = .1; } catch (e) {}
+  await once(player, 'loadeddata', 2500);
+}
+function snapPoster(v) {   // снимок кадра для рамки, когда плеер ушёл дальше
+  try {
+    const c = document.createElement('canvas'), r = Math.min(1, 260 / Math.max(player.videoWidth, 1));
+    c.width = Math.max(2, Math.round(player.videoWidth * r)); c.height = Math.max(2, Math.round(player.videoHeight * r));
+    c.getContext('2d').drawImage(player, 0, 0, c.width, c.height);
+    v.poster.src = c.toDataURL('image/jpeg', .7);
+  } catch (e) {}
+}
+function releasePlayer(v) {
+  v.poster.style.width = v.vw + 'px'; v.poster.style.height = v.vh + 'px';
+  if (v.poster.src) v.poster.style.display = 'block';
+  player.pause(); if (player.parentNode === v.el) v.el.removeChild(player);
+  player.removeAttribute('src'); try { player.load(); } catch (e) {}
+  v.video = null;
+}
+function sizeFrame(v, k = 0, vd = player) {
+  v.k = k;
   if (v.x === undefined) { const slot = ringSlot(v.i, vids.length); v.x = slot.x; v.y = slot.y; }
   let a = vd.videoWidth && vd.videoHeight ? vd.videoWidth / vd.videoHeight : 9 / 16;
   a = clamp(a, .45, 2.2);
@@ -724,7 +742,7 @@ function planFall(v) {
   v.slots = slots.map(o => ({ ...o, cur: null }));
   v.fall = v.photoList.map((ph, j) => {
     const sl = v.slots[j % v.slots.length];
-    return { ph, slot: sl, x: sl.x + (rnd() - .5) * 10, y: sl.y + (rnd() - .5) * 8, rot: (rnd() - .5) * 14, done: false };
+    return { v, ph, slot: sl, x: sl.x + (rnd() - .5) * 10, y: sl.y + (rnd() - .5) * 8, rot: (rnd() - .5) * 14, done: false };
   });
   const xs = slots.map(o => o.x), ys = slots.map(o => o.y);
   addBox(Math.min(v.x - v.W / 2, ...xs) - PW / 2, Math.min(v.y - v.H / 2, ...ys) - PH / 2, Math.max(v.x + v.W / 2, ...xs) + PW / 2, Math.max(v.y + v.H / 2, ...ys) + PH / 2);
@@ -733,7 +751,7 @@ function dropPhoto(it) {
   if (it.done) return; it.done = true;
   const { n, w, h } = polaroid(it.ph, PS);
   put(wb, n, it.x, it.y, w, h, it.rot);
-  const old = it.slot.cur; it.slot.cur = n;
+  const old = it.slot.cur; it.slot.cur = n; (it.v.nodes = it.v.nodes || []).push(n);
   if (old) {   // место уже занято: прежнее фото мягко уходит, когда новое приземляется
     later(1100, () => { old.style.transition = 'opacity .6s'; old.style.opacity = 0; setTimeout(() => old.remove(), 700); });
   }
@@ -748,6 +766,10 @@ function dropPhoto(it) {
     { transform: `translate(${bx}px,${by}px) rotate(${it.rot}deg) scale(1)`, opacity: 1 }
   ], { duration: 1500 / SPEED, fill: 'backwards' });
   later(1080, () => { const [x, y] = toScreen(it.x, it.y); burst(x, y, 9, 200); }); });
+}
+function prunePhotos(v) {   // после поздравления оставляем на столе только несколько фото, остальное убираем из памяти
+  const nodes = (v.nodes || []).filter(n => n.isConnected), keep = 3;
+  nodes.slice(0, Math.max(0, nodes.length - keep)).forEach(n => { n.style.transition = 'opacity .7s'; n.style.opacity = 0; setTimeout(() => n.remove(), 800); });
 }
 function startFall(v, durMs) {
   planFall(v);
@@ -769,8 +791,7 @@ async function clipSwap(v, k, main) {
   ], { duration: 520 / SPEED, easing: 'cubic-bezier(.5,0,.9,.4)', fill: 'forwards' });
   const [cx, cy] = toScreen(v.x, v.y); burst(cx, cy, 30, 380);
   await wait(540);
-  await Promise.race([v.metas[k], wait(2500)]);
-  sizeFrame(v, k);
+  await loadClip(v, k);
   el.style.transform = T(el);
   el.animate([
     { transform: T(el, ` scale(0) rotate(${dir * 16}deg)`), opacity: 0 },
@@ -784,10 +805,11 @@ async function clipSwap(v, k, main) {
 }
 
 async function segment(v) {
-  await Promise.race([v.meta, wait(500)]);
-  sizeFrame(v, 0);
+  makeFrame(v);
+  await loadClip(v, 0);
   v.photoList.forEach(p => { const im = new Image(); im.src = p.src; });
-  const last = v.vds.length - 1, hasPhotos = v.photoList.length > 0;
+  const nextV = vids[v.i + 1]; if (nextV) nextV.clips.forEach(c => { fetch(c).catch(() => {}); });   // прогреваем следующий ролик в кэше
+  const last = v.clips.length - 1, hasPhotos = v.photoList.length > 0;
   const [a, b, c, d] = wholeBox([[v.x - v.W / 2 - 130, v.y - v.H / 2 - 100, v.x + v.W / 2 + 130, v.y + v.H / 2 + 100]]);
   await camTo(fit(a, b, c, d, .92, .85, .8), 1500);
   // кадр «приземляется»
@@ -805,14 +827,16 @@ async function segment(v) {
   for (let k = 0; k <= last; k++) {
     const main = k === last && hasPhotos;
     if (k === 0) await camTo(focusClip(v, main), 1800); else await clipSwap(v, k, main);
-    const nx = v.vds[k + 1]; if (nx) { nx.preload = 'auto'; try { nx.load(); } catch (e) {} }
     await wait(200);
     if (main) { const dd = v.video.duration; startFall(v, ((dd && isFinite(dd)) ? dd : 30) * 1000); }
+    if (k === last) snapPoster(v);
     await playVideo(v);
-    v.video.pause(); try { v.video.currentTime = .1; } catch (e) {}
+    v.video.pause();
     if (main) { const left = finishFall(v); await wait(1700 + left * 120); }
     else await wait(250);
   }
+  releasePlayer(v);
+  prunePhotos(v);
   await wait(350);
 }
 
@@ -845,7 +869,6 @@ async function finale() {
   const bw = cols * cw, bh = rows * ch, mc = fit(-bw / 2, -bh / 2, bw / 2, bh / 2, .98, portrait ? .5 : .6, 1);
   mc.y += vh * (portrait ? .08 : .1) / mc.s;
   await camTo(mc, 2200);
-  L.slice(0, 6).forEach(v => { v.video.muted = true; v.video.loop = true; try { v.video.currentTime = .1; } catch (e) {} v.video.play().catch(() => {}); });
   $('endText').textContent = CFG.endText || 'Мы тебя любим!';
   $('end').classList.remove('hide');
   later(300, () => rain(70));
@@ -853,9 +876,9 @@ async function finale() {
 }
 
 async function run() {
-  buildFrames();
-  // «разблокировать» видео жестом пользователя (важно для телефона, особенно iPhone)
-  vids.forEach(v => v.vds.forEach(vd => { vd.muted = false; const p = vd.play(); if (p && p.then) p.then(() => { vd.pause(); try { vd.currentTime = .1; } catch (e) {} vd.muted = true; }).catch(() => { vd.muted = true; }); }));
+  // «разблокировать» плеер жестом пользователя (важно для телефона, особенно iPhone)
+  player.muted = false; player.src = vids[0].clips[0];
+  { const p = player.play(); if (p && p.then) p.then(() => { player.pause(); player.muted = true; }).catch(() => { player.muted = true; }); }
   await intro();
   $('ui').classList.remove('hide'); $('dots').classList.remove('hide');
   for (let i = 0; i < vids.length; i++) { setDots(vids.length, i); await segment(vids[i]); }
@@ -884,7 +907,7 @@ buildTableDecor();
 layoutPhotos();
 cam.s = clamp(Math.min(vw * .9 / 560, vh * .55 / 560), .5, 1);
 requestAnimationFrame(loop);
-window.__wish = { A, cam, vids, get clock() { return clock; }, burst };
+window.__wish = { A, player, cam, vids, get clock() { return clock; }, burst };
 })();
 </script>
 </body>
