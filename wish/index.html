@@ -300,7 +300,7 @@ function popIn(n, ms = 600, delay = 0, from = 0) {
 }
 
 function polaroid(ph, scale = 1) {
-  const a = ph.w / ph.h, base = 200 * scale;
+  const a = ph.w / ph.h, base = 300 * scale;
   const pw = a >= 1 ? base : base * a, phh = a >= 1 ? base / a : base;
   const n = document.createElement('div');
   n.className = 'pol';
@@ -372,7 +372,7 @@ function layoutPhotos() {
   const P = photos.length, [fx, fy] = photoStretch();
   let minX = 1e9, minY = 1e9, maxX = -1e9, maxY = -1e9;
   photos.forEach((ph, i) => {
-    const u = P > 1 ? i / (P - 1) : 0, r = 280 + 200 * Math.sqrt(u), a = -Math.PI / 2 + i * 2.399963;
+    const u = P > 1 ? i / (P - 1) : 0, r = 520 + 360 * Math.sqrt(u), a = -Math.PI / 2 + i * 2.399963;
     const x = Math.cos(a) * r * fx, y = Math.sin(a) * r * fy;
     const { n, w, h } = polaroid(ph, 1);
     const rot = rand(-13, 13);
