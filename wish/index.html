@@ -733,14 +733,16 @@ function dropPhoto(it) {
     later(1100, () => { old.style.transition = 'opacity .6s'; old.style.opacity = 0; setTimeout(() => old.remove(), 700); });
   }
   const bx = n.dataset.x, by = n.dataset.y, topY = cam.y - vh / 2 / cam.s - h - 40, sx = +bx + rand(-70, 70), r0 = it.rot + rand(-90, 90);
-  n.animate([
+  n.style.opacity = 0;
+  const im = n.querySelector('img'), ready = (im && im.decode) ? im.decode().catch(() => {}) : Promise.resolve();
+  ready.then(() => { n.style.opacity = 1; n.animate([
     { transform: `translate(${sx}px,${topY}px) rotate(${r0}deg) scale(.9)`, opacity: 0, easing: 'cubic-bezier(.4,0,.85,.55)' },
     { opacity: 1, offset: .08, transform: `translate(${sx + (bx - sx) * .08}px,${topY + (by - topY) * .02}px) rotate(${r0}deg) scale(.92)`, easing: 'cubic-bezier(.4,0,.85,.55)' },
     { transform: `translate(${bx}px,${by}px) rotate(${it.rot}deg) scale(1.08)`, opacity: 1, offset: .72, easing: 'ease-out' },
     { transform: `translate(${bx}px,${+by - 14}px) rotate(${it.rot}deg) scale(1.02)`, opacity: 1, offset: .86, easing: 'ease-in' },
     { transform: `translate(${bx}px,${by}px) rotate(${it.rot}deg) scale(1)`, opacity: 1 }
   ], { duration: 1500 / SPEED, fill: 'backwards' });
-  later(1080, () => { const [x, y] = toScreen(it.x, it.y); burst(x, y, 9, 200); });
+  later(1080, () => { const [x, y] = toScreen(it.x, it.y); burst(x, y, 9, 200); }); });
 }
 function startFall(v, durMs) {
   planFall(v);

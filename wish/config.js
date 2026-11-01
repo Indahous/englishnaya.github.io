@@ -74,6 +74,17 @@ window.WISH = {
       {src:'people/papa/f08.jpg', w:1125, h:1500},
       {src:'people/papa/f09.jpg', w:1125, h:1500},
       {src:'people/papa/f10.jpg', w:1125, h:1500}
+    ] },
+  { name:'Дорогая Свекровь',
+    clips:['videos/svek1.mp4'],
+    photos:[
+      {src:'people/svek/f01.jpg', w:867, h:1311},
+      {src:'people/svek/f02.jpg', w:1125, h:1500},
+      {src:'people/svek/f03.jpg', w:1169, h:943},
+      {src:'people/svek/f04.jpg', w:1125, h:1500},
+      {src:'people/svek/f05.jpg', w:1037, h:1500},
+      {src:'people/svek/f06.jpg', w:1500, h:1125},
+      {src:'people/svek/f07.jpg', w:1125, h:1500}
     ] }
 ]
 };
