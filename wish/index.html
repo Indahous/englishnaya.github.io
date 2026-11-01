@@ -660,11 +660,15 @@ const A = (() => {
 })();
 
 /* след последнего шага: если вкладку выгрузит телефон, при следующем открытии покажем, где оборвалось */
-function mark(m) { try { localStorage.setItem('wishlast', JSON.stringify({ t: Date.now(), m })); } catch (e) {} }
+let lastMark = '';
+function mark(m, raw) { if (!raw) lastMark = m; try { localStorage.setItem('wishlast', JSON.stringify({ t: Date.now(), m })); } catch (e) {} }
+// если вкладку скрыли или закрыли сами — это не вылет, пометим отдельно
+document.addEventListener('visibilitychange', () => { if (document.hidden && lastMark && !/^готово/.test(lastMark)) mark(lastMark + ' [вкладку свернули или закрыли]', true); });
+addEventListener('pagehide', () => { if (lastMark && !/^готово/.test(lastMark)) mark(lastMark + ' [страницу закрыли или обновили]', true); });
 (function () {
   try {
     const r = JSON.parse(localStorage.getItem('wishlast') || 'null');
-    if (r && r.m && !/^готово/.test(r.m)) { const n = document.createElement('p'); n.style.cssText = 'font-size:12px;opacity:.55;max-width:300px;text-align:center'; n.textContent = 'Прошлый запуск оборвался: ' + r.m; $('start').appendChild(n); }
+    if (r && r.m && !/^готово/.test(r.m)) { const n = document.createElement('p'); n.style.cssText = 'font-size:12px;opacity:.55;max-width:300px;text-align:center'; n.textContent = 'Прошлый запуск оборвался: ' + r.m + ' (' + Math.max(1, Math.round((Date.now() - r.t) / 60000)) + ' мин назад)'; $('start').appendChild(n); }
   } catch (e) {}
 })();
 
