@@ -317,14 +317,22 @@ const aspect = () => vw / vh;
 function ringStretch() { const a = aspect(); return a < .8 ? [.9, 1.15] : a > 1.2 ? [1.25, .9] : [1, 1]; }
 function photoStretch() { const a = aspect(); return a < .8 ? [.74, 1.5] : a > 1.2 ? [1.5, .85] : [1, 1]; }
 
+/* Поздравители лежат на спирали вокруг торта: между соседями всегда одно и то же расстояние,
+   поэтому камере не нужно отъезжать далеко (на телефоне это самый тяжёлый момент). */
+let spiralPts = null;
 function ringSlot(i, N) {
-  const caps = [8, 14, 22, 30, 40, 50];
-  let ring = 0, start = 0;
-  while (i >= start + caps[ring]) { start += caps[ring]; ring++; }
-  const inRing = Math.min(N - start, caps[ring]), k = i - start;
-  const [ex, ey] = ringStretch(), R = 1950 + ring * 1200;
-  const ang = -Math.PI / 2 + (k + (ring % 2 ? .5 : 0)) / inRing * Math.PI * 2;
-  return { x: Math.cos(ang) * R * ex, y: Math.sin(ang) * R * ey };
+  if (!spiralPts) {
+    const [ex, ey] = ringStretch(), D = 1750, r0 = 2050, pitch = 1700, c = pitch / (2 * Math.PI);
+    spiralPts = []; let th = r0 / c, acc = 0, next = 0, px = null, py = null;
+    for (let n = 0; n < 40000 && spiralPts.length < 64; n++) {
+      th += .004;
+      const r = c * th, a = -Math.PI / 2 + th, x = Math.cos(a) * r * ex, y = Math.sin(a) * r * ey;
+      if (px !== null) acc += Math.hypot(x - px, y - py);
+      px = x; py = y;
+      if (acc >= next) { spiralPts.push({ x, y }); next += D; }
+    }
+  }
+  return spiralPts[i] || spiralPts[spiralPts.length - 1];
 }
 
 /* ============ состояние шоу ============ */
@@ -781,7 +789,7 @@ function dropPhoto(it) {
   later(1080, () => { const [x, y] = toScreen(it.x, it.y); burst(x, y, 9, 200); }); });
 }
 function prunePhotos(v) {   // после поздравления оставляем на столе только несколько фото, остальное убираем из памяти
-  const nodes = (v.nodes || []).filter(n => n.isConnected), keep = 3;
+  const nodes = (v.nodes || []).filter(n => n.isConnected), keep = 1;
   nodes.slice(0, Math.max(0, nodes.length - keep)).forEach(n => { n.style.transition = 'opacity .7s'; n.style.opacity = 0; setTimeout(() => n.remove(), 800); });
 }
 function startFall(v, durMs) {
@@ -862,9 +870,7 @@ async function segment(v) {
 async function finale() {
   mark('финал');
   $('ui').classList.add('hide'); $('dots').classList.add('hide');
-  const [a, b, c, d] = wholeBox();
-  const fcam = fit(a, b, c, d, .94, .86, .6);
-  const ca = camTo(fcam, 2600);
+  const ca = camTo({ x: 0, y: 0, s: clamp(Math.min(vw * .9 / 900, vh * .8 / 1100), .3, .6) }, 2600);   // без дальнего отъезда: рамки сами слетятся к центру
   rain(90); later(800, () => rain(70)); later(1600, () => rain(70));
   for (let i = 0; i < 9; i++) spawnBalloon(true);
   await ca;
