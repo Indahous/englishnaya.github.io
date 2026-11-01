@@ -85,6 +85,126 @@ window.WISH = {
       {src:'people/svek/f05.jpg', w:1037, h:1500},
       {src:'people/svek/f06.jpg', w:1500, h:1125},
       {src:'people/svek/f07.jpg', w:1125, h:1500}
-    ] }
+    ] },
+  { name:'Элина',
+    clips:['videos/g05.mp4'],
+    photos:[
+      {src:'people/p05/f01.jpg', w:1125, h:1500},
+      {src:'people/p05/f02.jpg', w:1125, h:1500},
+      {src:'people/p05/f03.jpg', w:900, h:1500},
+      {src:'people/p05/f04.jpg', w:1500, h:1125},
+      {src:'people/p05/f05.jpg', w:1500, h:1125},
+      {src:'people/p05/f06.jpg', w:844, h:1500},
+      {src:'people/p05/f07.jpg', w:1120, h:1500},
+      {src:'people/p05/f08.jpg', w:1125, h:1500}
+    ] },
+  { name:'Арнольд',
+    clips:['videos/g06.mp4'],
+    photos:[
+      {src:'people/p06/f01.jpg', w:1125, h:1500},
+      {src:'people/p06/f02.jpg', w:1125, h:1500},
+      {src:'people/p06/f03.jpg', w:1500, h:1125},
+      {src:'people/p06/f04.jpg', w:1500, h:1125},
+      {src:'people/p06/f05.jpg', w:1125, h:1500},
+      {src:'people/p06/f06.jpg', w:1125, h:1500},
+      {src:'people/p06/f07.jpg', w:1125, h:1500},
+      {src:'people/p06/f08.jpg', w:1125, h:1500},
+      {src:'people/p06/f09.jpg', w:1125, h:1500}
+    ] },
+  { name:'Максим, Кристина, Феликс, Марк, Виктория',
+    clips:['videos/g07.mp4'],
+    photos:[
+      {src:'people/p07/f01.jpg', w:1125, h:1500},
+      {src:'people/p07/f02.jpg', w:1125, h:1500},
+      {src:'people/p07/f03.jpg', w:1500, h:1181},
+      {src:'people/p07/f04.jpg', w:1500, h:1125},
+      {src:'people/p07/f05.jpg', w:1125, h:1500},
+      {src:'people/p07/f06.jpg', w:1500, h:1125},
+      {src:'people/p07/f07.jpg', w:1125, h:1500},
+      {src:'people/p07/f08.jpg', w:1125, h:1500}
+    ] },
+  { name:'Наталья',
+    clips:['videos/g08.mp4'],
+    photos:[
+      {src:'people/p08/f01.jpg', w:960, h:1280},
+      {src:'people/p08/f02.jpg', w:590, h:1280},
+      {src:'people/p08/f03.jpg', w:959, h:1280},
+      {src:'people/p08/f04.jpg', w:960, h:1280}
+    ] },
+  { name:'Дима, Света',
+    clips:['videos/g09.mp4'],
+    photos:[
+      {src:'people/p09/f04.jpg', w:1500, h:1125},
+      {src:'people/p09/f05.jpg', w:1500, h:1125},
+      {src:'people/p09/f07.jpg', w:1125, h:1500},
+      {src:'people/p09/f10.jpg', w:692, h:1500}
+    ] },
+  { name:'Диана, Эмилия',
+    clips:['videos/g10.mp4'],
+    photos:[
+      {src:'people/p10/f01.jpg', w:1125, h:1500},
+      {src:'people/p10/f02.jpg', w:960, h:720},
+      {src:'people/p10/f03.jpg', w:1500, h:1125},
+      {src:'people/p10/f04.jpg', w:1500, h:1000},
+      {src:'people/p10/f05.jpg', w:828, h:552},
+      {src:'people/p10/f06.jpg', w:969, h:1280},
+      {src:'people/p10/f07.jpg', w:968, h:1280},
+      {src:'people/p10/f08.jpg', w:1280, h:841},
+      {src:'people/p10/f09.jpg', w:1280, h:952},
+      {src:'people/p10/f10.jpg', w:1280, h:704},
+      {src:'people/p10/f11.jpg', w:970, h:1280}
+    ] },
+  { name:'Ника',
+    clips:['videos/g11.mp4'],
+    photos:[
+      {src:'people/p11/f01.jpg', w:1125, h:1500},
+      {src:'people/p11/f02.jpg', w:959, h:1280},
+      {src:'people/p11/f03.jpg', w:1125, h:1500},
+      {src:'people/p11/f04.jpg', w:1125, h:1500},
+      {src:'people/p11/f05.jpg', w:1125, h:1500},
+      {src:'people/p11/f06.jpg', w:1500, h:1000},
+      {src:'people/p11/f07.jpg', w:1125, h:1500},
+      {src:'people/p11/f08.jpg', w:1125, h:1500},
+      {src:'people/p11/f09.jpg', w:1125, h:1500},
+      {src:'people/p11/f10.jpg', w:1125, h:1500},
+      {src:'people/p11/f11.jpg', w:1125, h:1500}
+    ] },
+  { name:'Игорь, Вероника, Миа',
+    clips:['videos/g12.mp4'],
+    photos:[
+      {src:'people/p12/f01.jpg', w:920, h:1500},
+      {src:'people/p12/f02.jpg', w:1500, h:1125},
+      {src:'people/p12/f03.jpg', w:1125, h:1500},
+      {src:'people/p12/f04.jpg', w:1125, h:1500},
+      {src:'people/p12/f05.jpg', w:1125, h:1500},
+      {src:'people/p12/f06.jpg', w:1125, h:1500}
+    ] },
+  { name:'Георгий, Гульшат, Марк, Амелия',
+    clips:['videos/g13.mp4'],
+    photos:[
+      {src:'people/p13/f01.jpg', w:1125, h:1500},
+      {src:'people/p13/f02.jpg', w:1125, h:1500},
+      {src:'people/p13/f03.jpg', w:1125, h:1500},
+      {src:'people/p13/f04.jpg', w:1125, h:1500},
+      {src:'people/p13/f05.jpg', w:749, h:752},
+      {src:'people/p13/f06.jpg', w:1125, h:1500},
+      {src:'people/p13/f07.jpg', w:1500, h:932}
+    ] },
+  { name:'Евгений, Екатерина, Есения',
+    clips:['videos/g14.mp4'],
+    photos:[
+      {src:'people/p14/f01.jpg', w:1195, h:661},
+      {src:'people/p14/f02.jpg', w:1125, h:1500},
+      {src:'people/p14/f03.jpg', w:1125, h:1500},
+      {src:'people/p14/f04.jpg', w:1125, h:1500},
+      {src:'people/p14/f05.jpg', w:1500, h:1125},
+      {src:'people/p14/f06.jpg', w:1125, h:1500},
+      {src:'people/p14/f07.jpg', w:1500, h:1125},
+      {src:'people/p14/f08.jpg', w:1500, h:1125},
+      {src:'people/p14/f09.jpg', w:1125, h:1500}
+    ] },
+  { name:'Глеб',
+    clips:['videos/g15a.mp4', 'videos/g15b.mp4'],
+    photos:[] }
 ]
 };

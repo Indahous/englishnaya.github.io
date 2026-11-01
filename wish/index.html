@@ -423,7 +423,12 @@ function sizeFrame(v, k = 0) {
   v.rot = (v.i % 2 ? 1 : -1) * rand(.6, 1.8);
   vd.style.width = w + 'px'; vd.style.height = h + 'px';
   v.el.style.width = v.W + 'px'; v.el.style.height = v.H + 'px';
-  const nm = v.el.querySelector('.name'); if (nm) nm.style.fontSize = Math.min(28, (v.W - 28) / (Math.max(nm.textContent.length, 1) * .52)) + 'px';
+  const nm = v.el.querySelector('.name');
+  if (nm) {   // длинные подписи уменьшаем, а совсем длинные переносим на две строки
+    const len = Math.max(nm.textContent.length, 1), avail = v.W - 28, one = avail / (len * .52);
+    if (one >= 17) { nm.style.whiteSpace = 'nowrap'; nm.style.fontSize = Math.min(28, one) + 'px'; nm.style.lineHeight = ''; }
+    else { nm.style.whiteSpace = 'normal'; nm.style.lineHeight = '1.04'; nm.style.bottom = '6px'; nm.style.fontSize = Math.min(24, avail * 2 / (len * .52 * 1.12)) + 'px'; }
+  }
   v.el.dataset.x = v.x - v.W / 2; v.el.dataset.y = v.y - v.H / 2; v.el.dataset.r = v.rot;
   if (k === 0) v.el.style.transform = T(v.el, ' scale(0)');
 }
