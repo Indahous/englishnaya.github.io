@@ -36,7 +36,7 @@
   /* фото именинницы: простые белые карточки */
   .pol { background: #fff; padding: 8px 8px 28px; border-radius: 3px;
     box-shadow: 0 10px 22px rgba(150, 70, 80, .28), 0 1px 3px rgba(150, 70, 80, .2); }
-  .pol img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 1px; filter: saturate(1.05) contrast(1.02); }
+  .pol img { display: block; width: 100%; height: 100%; object-fit: cover; border-radius: 1px; }
 
   /* рамка под видео */
   .vframe { background: #fff; padding: 12px 12px 52px; border-radius: 14px;
@@ -659,6 +659,15 @@ const A = (() => {
   return { startMusic, level, pause, music, intro };
 })();
 
+/* след последнего шага: если вкладку выгрузит телефон, при следующем открытии покажем, где оборвалось */
+function mark(m) { try { localStorage.setItem('wishlast', JSON.stringify({ t: Date.now(), m })); } catch (e) {} }
+(function () {
+  try {
+    const r = JSON.parse(localStorage.getItem('wishlast') || 'null');
+    if (r && r.m && !/^готово/.test(r.m)) { const n = document.createElement('p'); n.style.cssText = 'font-size:12px;opacity:.55;max-width:300px;text-align:center'; n.textContent = 'Прошлый запуск оборвался: ' + r.m; $('start').appendChild(n); }
+  } catch (e) {}
+})();
+
 /* ============ сценарий ============ */
 function wholeBox(extra = []) {
   let a = [1e9, 1e9, -1e9, -1e9];
@@ -810,8 +819,10 @@ async function segment(v) {
   v.photoList.forEach(p => { const im = new Image(); im.src = p.src; });
   const nextV = vids[v.i + 1]; if (nextV) nextV.clips.forEach(c => { fetch(c).catch(() => {}); });   // прогреваем следующий ролик в кэше
   const last = v.clips.length - 1, hasPhotos = v.photoList.length > 0;
-  const [a, b, c, d] = wholeBox([[v.x - v.W / 2 - 130, v.y - v.H / 2 - 100, v.x + v.W / 2 + 130, v.y + v.H / 2 + 100]]);
-  await camTo(fit(a, b, c, d, .92, .85, .8), 1500);
+  const hw = vw / 2 / cam.s, hh = vh / 2 / cam.s;   // что камера видит сейчас
+  const tb = [Math.min(cam.x - hw, v.x - v.W / 2 - 130), Math.min(cam.y - hh, v.y - v.H / 2 - 100), Math.max(cam.x + hw, v.x + v.W / 2 + 130), Math.max(cam.y + hh, v.y + v.H / 2 + 100)];
+  mark('г' + (v.i + 1) + ' ' + v.name + ': подлёт');
+  await camTo(fit(tb[0], tb[1], tb[2], tb[3], .92, .85, .8), 1500);
   // кадр «приземляется»
   v.el.style.opacity = 1;
   v.el.animate([
@@ -830,17 +841,22 @@ async function segment(v) {
     await wait(200);
     if (main) { const dd = v.video.duration; startFall(v, ((dd && isFinite(dd)) ? dd : 30) * 1000); }
     if (k === last) snapPoster(v);
+    mark('г' + (v.i + 1) + ' ' + v.name + ': ролик ' + (k + 1) + '/' + v.clips.length);
+    const mt = setInterval(() => mark('г' + (v.i + 1) + ' ' + v.name + ': ролик ' + (k + 1) + '/' + v.clips.length + ', ' + Math.round(player.currentTime) + ' с'), 4000);
     await playVideo(v);
+    clearInterval(mt);
     v.video.pause();
     if (main) { const left = finishFall(v); await wait(1700 + left * 120); }
     else await wait(250);
   }
+  mark('г' + (v.i + 1) + ' ' + v.name + ': после ролика');
   releasePlayer(v);
   prunePhotos(v);
   await wait(350);
 }
 
 async function finale() {
+  mark('финал');
   $('ui').classList.add('hide'); $('dots').classList.add('hide');
   const [a, b, c, d] = wholeBox();
   const fcam = fit(a, b, c, d, .94, .86, .6);
@@ -870,7 +886,7 @@ async function finale() {
   mc.y += vh * (portrait ? .08 : .1) / mc.s;
   await camTo(mc, 2200);
   $('endText').textContent = CFG.endText || 'Мы тебя любим!';
-  $('end').classList.remove('hide');
+  $('end').classList.remove('hide'); mark('готово');
   later(300, () => rain(70));
   for (let i = 0; i < 6; i++) later(900 + i * 1400, () => burst(rand(vw * .15, vw * .85), rand(vh * .12, vh * .45), 40, 460));
 }
