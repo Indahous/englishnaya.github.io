@@ -33,7 +33,7 @@ window.WISH = {
   {src:'photos/p24.jpg', w:1350, h:1800}
 ],
   videos:[
-  { name:'Мама',
+  { name:'Мамочка',
     clips:['videos/mama1.mp4', 'videos/mama2.mp4', 'videos/mama3.mp4'],
     photos:[
       {src:'people/mama/f01.jpg', w:640, h:480},
@@ -50,7 +50,7 @@ window.WISH = {
       {src:'people/mama/f12.jpg', w:1125, h:1500},
       {src:'people/mama/f13.jpg', w:1125, h:1500}
     ] },
-  { name:'Бабуля',
+  { name:'Дорогая бабуля',
     clips:['videos/bab1.mp4', 'videos/bab2.mp4', 'videos/bab3.mp4'],
     photos:[
       {src:'people/babulya/f01.jpg', w:1500, h:1125},
@@ -61,7 +61,7 @@ window.WISH = {
       {src:'people/babulya/f06.jpg', w:1125, h:1500},
       {src:'people/babulya/f07.jpg', w:1125, h:1500}
     ] },
-  { name:'Папа',
+  { name:'Папа, Эльвира, Ефим',
     clips:['videos/papa1.mp4', 'videos/papa2.mp4', 'videos/papa3.mp4', 'videos/papa4.mp4'],
     photos:[
       {src:'people/papa/f01.jpg', w:1125, h:1500},

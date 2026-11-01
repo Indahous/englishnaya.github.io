@@ -93,7 +93,7 @@
   }
 
   /* кнопки управления */
-  #musicBtn { margin-top: 18px; border: 0; border-radius: 22px; padding: 10px 18px; background: rgba(255,255,255,.85); color: #8a2a4a; font: 800 15px Nunito, system-ui, sans-serif; box-shadow: 0 4px 14px rgba(150,60,80,.25); }
+  #musicBtn { position: fixed; z-index: 30; left: 50%; transform: translateX(-50%); bottom: calc(env(safe-area-inset-bottom, 0px) + 18px); border: 0; border-radius: 22px; padding: 10px 18px; background: rgba(255,255,255,.85); color: #8a2a4a; font: 800 15px Nunito, system-ui, sans-serif; box-shadow: 0 4px 14px rgba(150,60,80,.25); }
   #musicBtn.hide { display: none; }
   #ui { position: fixed; z-index: 8; right: calc(env(safe-area-inset-right, 0px) + 12px); top: calc(env(safe-area-inset-top, 0px) + 12px); display: flex; gap: 10px; transition: opacity .5s; }
   #ui.hide { opacity: 0; pointer-events: none; }
@@ -126,8 +126,9 @@
   <h1>Катюша,<br>это тебе!</h1>
   <p>Включи звук и нажми кнопку</p>
   <button class="bigbtn" id="startBtn">Открыть</button>
-  <button id="musicBtn" class="hide" type="button">♪ Включить музыку</button>
 </section>
+
+<button id="musicBtn" class="hide" type="button">♪ Включить музыку</button>
 
 <section class="screen hide" id="end">
   <div class="card">
@@ -422,6 +423,7 @@ function sizeFrame(v, k = 0) {
   v.rot = (v.i % 2 ? 1 : -1) * rand(.6, 1.8);
   vd.style.width = w + 'px'; vd.style.height = h + 'px';
   v.el.style.width = v.W + 'px'; v.el.style.height = v.H + 'px';
+  const nm = v.el.querySelector('.name'); if (nm) nm.style.fontSize = Math.min(28, (v.W - 28) / (Math.max(nm.textContent.length, 1) * .52)) + 'px';
   v.el.dataset.x = v.x - v.W / 2; v.el.dataset.y = v.y - v.H / 2; v.el.dataset.r = v.rot;
   if (k === 0) v.el.style.transform = T(v.el, ' scale(0)');
 }
@@ -610,7 +612,19 @@ const A = (() => {
     if (volOK) fadeVol(music, base * k, 800);
     else if (k < .5) music.pause(); else music.play().catch(() => {});
   }
+  // сторожок: если телефон остановил музыку (например, после включения видео), запускаем снова
+  let userPause = false, shownBtn = false;
+  setInterval(() => {
+    if (!musicOn || userPause || document.hidden || !music.paused) return;
+    if (!(duck >= .5 || volOK)) return;
+    music.play().then(() => { if (volOK && music.volume < .02) fadeVol(music, base * duck, 800); }).catch(() => {
+      if (shownBtn) return; shownBtn = true;
+      btn.textContent = '♪ Включить музыку'; btn.classList.remove('hide');
+      btn.onclick = e => { e.stopPropagation(); btn.classList.add('hide'); shownBtn = false; music.play().then(() => fadeVol(music, base * duck, 800)).catch(() => {}); };
+    });
+  }, 1200);
   function pause(on) {
+    userPause = on;
     if (!musicOn) return;
     if (on) music.pause(); else if (duck >= .5 || volOK) music.play().catch(() => {});
   }
