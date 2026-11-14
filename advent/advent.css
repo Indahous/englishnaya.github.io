@@ -85,3 +85,10 @@ footer a{color:var(--dark)}
 @media (max-height:520px) and (orientation:landscape){.win h2{display:none}.board{max-width:420px}.hint{margin:0 0 4px}}
 @media (prefers-reduced-motion:reduce){.flake,.slot.open{animation:none}}
 @media (max-width:600px){.slot .play{font-size:8px;padding:2px 7px}.slot .soon{font-size:7px;padding:1px 5px}}
+
+/* окно для игр-страниц */
+.fmodal{position:fixed;inset:0;z-index:3000;background:rgba(30,50,70,.62);display:flex;align-items:center;justify-content:center;padding:10px;backdrop-filter:blur(3px)}
+.fwin{position:relative;width:min(1100px,100%);height:min(720px,calc(100dvh - 20px));border-radius:22px;border:4px solid #fff;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.35);background:#fbe9dc}
+.fwin iframe{width:100%;height:100%;border:0;display:block}
+.fwin .x{top:12px;right:12px;width:40px;height:40px}
+@media (max-width:600px){.fmodal{padding:0}.fwin{width:100%;height:100dvh;border-radius:0;border:0}}

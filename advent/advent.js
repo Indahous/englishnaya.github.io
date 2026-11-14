@@ -4,20 +4,34 @@
 
   var AA = window.ADVENT_ART, EDGE = AA.wavy(2.6, 9);
 
+  /* Открытые окошки */
+  var GAMES = {
+    1: { name: 'Найди пару', open: function () { openGame(); } },
+    2: { name: 'Нарядим ёлку!', open: function () { openFrame('tree/', 'Нарядим ёлку!'); } }
+  };
+  var frameModal = document.getElementById('fmodal'), frame = document.getElementById('frame');
+  function openFrame(src, title) {
+    frame.src = src; frame.title = title; frameModal.classList.remove('hidden'); document.body.classList.add('lock');
+    document.getElementById('fx').focus();
+  }
+  function closeFrame() { frameModal.classList.add('hidden'); frame.src = 'about:blank'; document.body.classList.remove('lock'); }
+  document.getElementById('fx').addEventListener('click', closeFrame);
+  document.addEventListener('keydown', function (e) { if (e.key === 'Escape' && !frameModal.classList.contains('hidden')) closeFrame(); });
+
   var cal = document.getElementById('cal');
   for (var n = 1; n <= 11; n++) {
-    var open = n === 1;
+    var open = !!GAMES[n];
     var b = document.createElement('button');
     b.type = 'button';
     b.className = 'slot cell-' + n + (open ? ' open' : ' locked');
-    b.setAttribute('aria-label', open ? 'Окошко 1: игра «Найди пару»' : 'Окошко ' + n + ': скоро');
+    b.setAttribute('aria-label', open ? 'Окошко ' + n + ': игра «' + GAMES[n].name + '»' : 'Окошко ' + n + ': скоро');
     if (!open) b.setAttribute('aria-disabled', 'true');
     b.innerHTML =
       '<svg class="tile" viewBox="0 0 100 100" aria-hidden="true"><path d="' + EDGE + '" fill="' + AA.ART[n].bg + '"/>' +
       '<g class="art">' + AA.ART[n].svg + '</g></svg>' +
       (open ? '<span class="play ' + AA.ART[n].pos + '">Играть</span>' : '<span class="soon ' + AA.ART[n].pos + '">Скоро</span>');
     cal.appendChild(b);
-    if (open) b.addEventListener('click', openGame);
+    if (open) b.addEventListener('click', GAMES[n].open);
   }
 
   /* ---------- Снег ---------- */

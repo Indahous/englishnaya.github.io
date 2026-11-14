@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Нарядим ёлку! — Адвент-календарь Инглишная KiDS</title>
+  <meta name="description" content="Новогодняя игра для детей 3–6 лет: послушай цвет и повесь на ёлку шарик нужного цвета. Учим red, yellow, green, blue вместе с жирафиком Лонги." />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Abril+Fatface&subset=latin,cyrillic" rel="stylesheet">
+  <link rel="stylesheet" href="tree.css" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body data-screen="rules">
+  <div class="snow" id="snow" aria-hidden="true"></div>
+
+  <header class="bar">
+    <button class="prompt hidden" id="prompt" type="button" aria-label="Послушать ещё раз">
+      <span class="p-word" id="p-word">red</span>
+      <svg class="p-speak" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="progress hidden" id="progress" aria-label="Шарики на ёлке"></div>
+    <div class="tools">
+      <button class="tbtn" id="btn-music" aria-label="Музыка" title="Музыка"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="3" fill="currentColor"/><circle cx="16.5" cy="16" r="3" fill="currentColor"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+      <button class="tbtn" id="btn-sound" aria-label="Звуки и голос" title="Звуки и голос"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+    </div>
+  </header>
+
+  <!-- Сцена (масштабируется под экран) -->
+  <div class="viewport" id="viewport">
+    <div class="stage" id="stage">
+      <div class="room" aria-hidden="true"></div>
+      <svg class="tree" id="tree" viewBox="0 0 600 700" aria-hidden="true"></svg>
+      <div class="slots" id="slots"></div>
+      <img class="longi" id="longi" src="img/longi.png" alt="Жирафик Лонги" draggable="false" />
+      <div class="say hidden" id="say"></div>
+      <div class="box" id="box">
+        <div class="box-in" id="box-in"></div>
+        <div class="box-front" aria-hidden="true"></div>
+      </div>
+      <button class="light-btn hidden" id="light-btn" type="button">Зажги ёлку!</button>
+    </div>
+  </div>
+  <div class="fx" id="fx" aria-hidden="true"></div>
+
+  <!-- Правила -->
+  <main class="screen" id="screen-rules">
+    <div class="panel">
+      <h1>Нарядим ёлку!</h1>
+      <div class="r-top"><img src="img/longi.png" alt="" /><div class="bubble">Привет! Я Лонги. Помоги мне нарядить ёлку!</div></div>
+      <ol class="steps">
+        <li><span class="ic">🔊</span><p>Послушай, какого цвета шарик нужен: <b>red, yellow, green</b> или <b>blue</b>.</p></li>
+        <li><span class="ic"><img src="img/ball-red.png" alt=""></span><p>Нажми на шарик нужного цвета в коробке — он повиснет на ёлке.</p></li>
+        <li><span class="ic">⭐</span><p>Повесь звезду на макушку и зажги гирлянду!</p></li>
+      </ol>
+      <button class="btn primary" id="btn-go">Поехали!</button>
+    </div>
+  </main>
+
+  <!-- Победа -->
+  <section class="screen hidden" id="screen-win">
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div class="panel win">
+      <h2>Ура! Ёлка наряжена!</h2>
+      <p class="mw">Merry Christmas!</p>
+      <div class="stars" id="stars"></div>
+      <p class="res" id="res"></p>
+      <div class="acts">
+        <button class="btn primary" id="btn-again">Играть ещё</button>
+        <a class="btn gold" id="btn-advent" href="/advent/" target="_top">Хочу весь Адвент</a>
+      </div>
+    </div>
+  </section>
+
+  <script src="xmas-audio.js"></script>
+  <script src="tree.js"></script>
+</body>
+</html>
