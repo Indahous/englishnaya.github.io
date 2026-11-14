@@ -1,0 +1,41 @@
+body{background:linear-gradient(#26315e 0,#3a3f72 60%,#4a4677 100%)}
+.room{background:linear-gradient(#5b5487 0,#6e6396 160px,#6e6396 100%);border-radius:0;left:-1500px;right:-1500px;bottom:-1500px}
+.window{position:absolute;width:150px;height:190px;border:8px solid #f2e7d6;border-radius:75px 75px 8px 8px;background:linear-gradient(#1c2550,#33407a);overflow:hidden;box-shadow:inset 0 0 20px rgba(0,0,0,.4)}
+.window::before,.window::after{content:'';position:absolute;background:#f2e7d6}
+.window::before{left:50%;top:0;bottom:0;width:6px;margin-left:-3px}.window::after{top:52%;left:0;right:0;height:6px}
+.window i{position:absolute;right:22px;top:24px;width:26px;height:26px;border-radius:50%;box-shadow:-7px 4px 0 0 #fff3c4}
+.gifts{position:absolute;inset:0;pointer-events:none}
+.gift{position:absolute;transform:translate(-50%,-100%);border:0;padding:0;background:none;cursor:pointer;pointer-events:auto;aspect-ratio:360/437}
+.gift .box{position:absolute;inset:0;width:100%;height:100%;transition:opacity .35s,transform .3s;filter:drop-shadow(0 8px 6px rgba(0,0,0,.3))}
+.gift .toy{position:absolute;left:12%;right:12%;bottom:8%;height:70%;object-fit:contain;opacity:0;transition:opacity .35s,transform .45s cubic-bezier(.3,1.6,.5,1)}
+.gift.seen .box{opacity:.28}
+.gift.seen .toy{opacity:1}
+.gift .cap{position:absolute;left:50%;top:-34px;transform:translateX(-50%);background:#fff;border-radius:14px;padding:4px 10px;font:600 17px 'Unbounded',sans-serif;white-space:nowrap;color:var(--dark);opacity:0;transition:opacity .3s;box-shadow:0 2px 6px rgba(0,0,0,.2)}
+.gift.seen .cap{opacity:1}
+.gift.shake{animation:shake .45s}
+.gift.open .box{opacity:0;transform:translateY(-30%) scale(1.25) rotate(8deg)}
+.gift.open .toy{opacity:1;transform:translateY(-18%) scale(1.12)}
+.gift.open .cap{opacity:1}
+.gift.done{pointer-events:none}
+.dark{position:absolute;inset:-1500px;background:rgba(10,14,38,.93);pointer-events:none;transition:opacity .6s;
+ -webkit-mask-image:radial-gradient(circle var(--r,120px) at var(--x,50%) var(--y,50%),transparent 0,transparent 70%,#000 100%),radial-gradient(ellipse var(--tw,200px) var(--th,260px) at var(--tx,50%) var(--ty,40%),rgba(0,0,0,.35) 0,rgba(0,0,0,.6) 60%,#000 100%);
+ mask-image:radial-gradient(circle var(--r,120px) at var(--x,50%) var(--y,50%),transparent 0,transparent 70%,#000 100%),radial-gradient(ellipse var(--tw,200px) var(--th,260px) at var(--tx,50%) var(--ty,40%),rgba(0,0,0,.35) 0,rgba(0,0,0,.6) 60%,#000 100%);
+ -webkit-mask-composite:source-in;mask-composite:intersect}
+.dark.off{opacity:.12}
+.torch{position:absolute;width:56px;height:112px;margin-left:-28px;pointer-events:none;transform-origin:50% 0;transition:opacity .4s;filter:drop-shadow(0 4px 6px rgba(0,0,0,.4))}
+.torch svg{width:100%;height:100%}
+.torch.hide{opacity:0}
+.beam{position:absolute;pointer-events:none}
+.p-toy{height:34px;width:auto}
+.prompt{font-size:22px}
+.found{display:flex;justify-content:center;gap:8px;margin:6px 0}
+.found img{height:62px;animation:pop .5s both}
+.light-ring{position:absolute;border-radius:50%;pointer-events:none;box-shadow:0 0 0 3px rgba(255,246,190,.35),0 0 40px 10px rgba(255,240,170,.18) inset}
+@media (max-width:520px){.prompt{font-size:16px}.p-toy{height:26px}.found img{height:46px}}
+.stage.port .say{font-size:24px;padding:10px 16px}.stage.port .gift .cap{font-size:22px;top:-44px}
+.dark{z-index:5}.say{z-index:7}.torch{z-index:8}
+.longi{z-index:6;transition:filter .6s}
+.stage.night .longi{filter:brightness(.72) drop-shadow(0 6px 6px rgba(0,0,0,.25))}
+.progress i.on{background-size:cover;background-position:center;box-shadow:0 0 0 2px #fff}
+.progress i{width:26px;height:26px}
+.viewport{touch-action:none}

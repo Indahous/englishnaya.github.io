@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Фонарик и подарки — Адвент-календарь Инглишная KiDS</title>
+  <meta name="description" content="Новогодняя игра для детей 3–6 лет: посвети фонариком на подарки под ёлкой и найди куклу, мишку, мяч или машинку. Учим find a doll, it's a teddy bear вместе с жирафиком Лонги." />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&family=Abril+Fatface&subset=latin,cyrillic" rel="stylesheet">
+  <link rel="stylesheet" href="../tree/tree.css" />
+  <link rel="stylesheet" href="gifts.css" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body data-screen="rules">
+  <div class="snow" id="snow" aria-hidden="true"></div>
+
+  <header class="bar">
+    <button class="prompt hidden" id="prompt" type="button" aria-label="Послушать ещё раз">
+      <img class="p-toy hidden" id="p-toy" alt="" />
+      <span class="p-word" id="p-word">Find a doll</span>
+      <svg class="p-speak" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
+    <div class="progress hidden" id="progress" aria-label="Найдено"></div>
+    <div class="tools">
+      <button class="tbtn" id="btn-music" aria-label="Музыка" title="Музыка"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="6.5" cy="18" r="3" fill="currentColor"/><circle cx="16.5" cy="16" r="3" fill="currentColor"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+      <button class="tbtn" id="btn-sound" aria-label="Звуки и голос" title="Звуки и голос"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button>
+    </div>
+  </header>
+
+  <div class="viewport" id="viewport">
+    <div class="stage" id="stage">
+      <div class="room" aria-hidden="true"></div>
+      <div class="window" aria-hidden="true"><i></i></div>
+      <svg class="tree" id="tree" viewBox="0 0 600 700" aria-hidden="true"></svg>
+      <div class="slots" id="slots" aria-hidden="true"></div>
+      <div class="gifts" id="gifts"></div>
+      <img class="longi" id="longi" src="../tree/img/longi.png" alt="Жирафик Лонги" draggable="false" />
+      <div class="say hidden" id="say"></div>
+      <div class="dark" id="dark" aria-hidden="true"></div>
+      <div class="torch" id="torch" aria-hidden="true">
+        <svg viewBox="0 0 60 120"><defs><linearGradient id="tb" x1="0" x2="1"><stop offset="0" stop-color="#e45b56"/><stop offset=".5" stop-color="#f58b84"/><stop offset="1" stop-color="#c94641"/></linearGradient></defs>
+          <path d="M8 4h44l-8 34H16z" fill="#f4e39e" stroke="#b9934a" stroke-width="3" stroke-linejoin="round"/><ellipse cx="30" cy="6" rx="22" ry="5" fill="#fffbe0" stroke="#b9934a" stroke-width="3"/>
+          <rect x="16" y="36" width="28" height="78" rx="9" fill="url(#tb)" stroke="#a63c38" stroke-width="3"/><rect x="24" y="52" width="12" height="16" rx="4" fill="#fff" opacity=".85"/>
+          <path d="M18 92h24M18 100h24" stroke="#a63c38" stroke-width="2.5"/></svg>
+      </div>
+    </div>
+  </div>
+  <div class="fx" id="fx" aria-hidden="true"></div>
+
+  <main class="screen" id="screen-rules">
+    <div class="panel">
+      <h1>Фонарик и подарки</h1>
+      <div class="r-top"><img src="../tree/img/longi.png" alt="" /><div class="bubble">Под ёлкой подарки! Но в комнате темно… Давай посветим фонариком!</div></div>
+      <ol class="steps">
+        <li><span class="ic">🔊</span><p>Послушай, что нужно найти: <b>Find a doll</b>, <b>a teddy bear</b>, <b>a ball</b> или <b>a car</b>.</p></li>
+        <li><span class="ic">🔦</span><p>Води фонариком по подаркам — увидишь, что внутри, и услышишь <b>It's a&nbsp;ball</b>.</p></li>
+        <li><span class="ic"><img src="img/gift.png" alt=""></span><p>Нашёл нужную игрушку? Нажми на этот подарок!</p></li>
+      </ol>
+      <button class="btn primary" id="btn-go">Поехали!</button>
+    </div>
+  </main>
+
+  <section class="screen hidden" id="screen-win">
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div class="panel win">
+      <h2>Ура! Все подарки найдены!</h2>
+      <p class="mw">Thank you!</p>
+      <div class="found" id="found"></div>
+      <div class="stars" id="stars"></div>
+      <p class="res" id="res"></p>
+      <div class="acts">
+        <button class="btn primary" id="btn-again">Играть ещё</button>
+        <a class="btn gold" id="btn-advent" href="/advent/" target="_top">Хочу весь Адвент</a>
+      </div>
+    </div>
+  </section>
+
+  <script>window.XMAS_MUSIC = '../tree/music.mp3';</script>
+  <script src="../tree/xmas-audio.js"></script>
+  <script src="xtree.js"></script>
+  <script src="gifts.js"></script>
+</body>
+</html>

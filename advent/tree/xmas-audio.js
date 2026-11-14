@@ -40,7 +40,7 @@ window.XmasAudio = (function () {
     s.connect(hp); hp.connect(g); g.connect(bus); s.start(t, Math.random() * .3); s.stop(t + .15);
   }
   /* Фоновая музыка — файл music.mp3 (Jingle Bells), играет через обычный audio: слышно и на iPhone в беззвучном режиме */
-  var VOL = .45, bgm = new Audio('music.mp3'), wantMusic = false;
+  var VOL = .45, bgm = new Audio(window.XMAS_MUSIC || 'music.mp3'), wantMusic = false;
   bgm.loop = true; bgm.preload = 'auto'; bgm.volume = VOL;
   function playBgm() { try { var p = bgm.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
   function start() {

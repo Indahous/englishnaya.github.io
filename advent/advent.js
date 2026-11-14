@@ -7,7 +7,8 @@
   /* Открытые окошки */
   var GAMES = {
     1: { name: 'Найди пару', open: function () { openGame(); } },
-    2: { name: 'Нарядим ёлку!', open: function () { openFrame('tree/', 'Нарядим ёлку!'); } }
+    2: { name: 'Нарядим ёлку!', open: function () { openFrame('tree/', 'Нарядим ёлку!'); } },
+    3: { name: 'Фонарик и подарки', open: function () { openFrame('gifts/', 'Фонарик и подарки'); } }
   };
   var frameModal = document.getElementById('fmodal'), frame = document.getElementById('frame');
   function openFrame(src, title) {
