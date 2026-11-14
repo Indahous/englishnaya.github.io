@@ -8,7 +8,8 @@
   var GAMES = {
     1: { name: 'Найди пару', open: function () { openGame(); } },
     2: { name: 'Нарядим ёлку!', open: function () { openFrame('tree/', 'Нарядим ёлку!'); } },
-    3: { name: 'Фонарик и подарки', open: function () { openFrame('gifts/', 'Фонарик и подарки'); } }
+    3: { name: 'Фонарик и подарки', open: function () { openFrame('gifts/', 'Фонарик и подарки'); } },
+    4: { name: 'Одень жирафика Лонги', open: function () { openFrame('dress/', 'Одень жирафика Лонги'); } }
   };
   var frameModal = document.getElementById('fmodal'), frame = document.getElementById('frame');
   function openFrame(src, title) {

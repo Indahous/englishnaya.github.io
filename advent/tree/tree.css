@@ -102,3 +102,4 @@ body{font-family:'Unbounded',sans-serif;color:var(--dark);background:linear-grad
 }
 @media (prefers-reduced-motion:reduce){.flake,.slot img,.ball.star{animation:none}}
 .embedded .tools{right:62px}
+@media (max-width:520px){.bar{justify-content:flex-start}.prompt{max-width:calc(100% - 96px);gap:6px}.embedded .prompt{max-width:calc(100% - 148px)}.prompt .p-word{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}}
