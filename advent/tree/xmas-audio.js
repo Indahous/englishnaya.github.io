@@ -1,14 +1,13 @@
-/* Новогодняя музыка (Jingle Bells, народная мелодия) и звуки — WebAudio, без файлов */
+/* Новогодняя музыка (Jingle Bells, народная мелодия) и звуки */
 window.XmasAudio = (function () {
   'use strict';
-  var ctx = null, master, musicBus, sfxBus, musicOn = true, sfxOn = true, timer = null, nextT = 0, step = 0;
+  var ctx = null, master, sfxBus, musicOn = true, sfxOn = true;
   try { musicOn = localStorage.getItem('xmas-music') !== '0'; sfxOn = localStorage.getItem('xmas-sfx') !== '0'; } catch (e) {}
   function init() {
     if (ctx) return true;
     var AC = window.AudioContext || window.webkitAudioContext; if (!AC) return false;
     ctx = new AC(); master = ctx.createGain(); master.gain.value = .9; master.connect(ctx.destination);
-    musicBus = ctx.createGain(); musicBus.gain.value = musicOn ? .22 : 0; musicBus.connect(master);
-    sfxBus = ctx.createGain(); sfxBus.gain.value = sfxOn ? .6 : 0; sfxBus.connect(master);
+        sfxBus = ctx.createGain(); sfxBus.gain.value = sfxOn ? .6 : 0; sfxBus.connect(master);
     return true;
   }
   function unlock() { if (!init()) return; if (ctx.state === 'suspended') ctx.resume(); }
@@ -40,48 +39,35 @@ window.XmasAudio = (function () {
     g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0005, t + .12);
     s.connect(hp); hp.connect(g); g.connect(bus); s.start(t, Math.random() * .3); s.stop(t + .15);
   }
-  /* Jingle Bells (припев), длительности в долях */
-  var N = { G3: 196, D4: 293.66, G4: 392, A4: 440, B4: 493.88, C5: 523.25, D5: 587.33, G5: 783.99 };
-  var MEL = [
-    ['B4', 1], ['B4', 1], ['B4', 2], ['B4', 1], ['B4', 1], ['B4', 2], ['B4', 1], ['D5', 1], ['G4', 1.5], ['A4', .5], ['B4', 4],
-    ['C5', 1], ['C5', 1], ['C5', 1.5], ['C5', .5], ['C5', 1], ['B4', 1], ['B4', 1], ['B4', .5], ['B4', .5], ['B4', 1], ['A4', 1], ['A4', 1], ['B4', 1], ['A4', 2], ['D5', 2],
-    ['B4', 1], ['B4', 1], ['B4', 2], ['B4', 1], ['B4', 1], ['B4', 2], ['B4', 1], ['D5', 1], ['G4', 1.5], ['A4', .5], ['B4', 4],
-    ['C5', 1], ['C5', 1], ['C5', 1.5], ['C5', .5], ['C5', 1], ['B4', 1], ['B4', 1], ['B4', .5], ['B4', .5], ['D5', 1], ['D5', 1], ['C5', 1], ['A4', 1], ['G4', 3], ['', 1]
-  ];
-  var BASS = [98, 98, 98, 98, 130.81, 98, 110, 146.83, 98, 98, 98, 98, 130.81, 98, 146.83, 98]; // по тактам
-  var BEAT = .42, mi = 0, beatPos = 0;
-  function schedule() {
-    if (!ctx) return;
-    while (nextT < ctx.currentTime + .35) {
-      var n = MEL[mi], d = n[1] * BEAT;
-      if (n[0]) bell(N[n[0]] * 2, nextT, Math.min(1.4, d * 1.6 + .3), .32, musicBus);
-      // бас и бубенцы по долям
-      var b0 = beatPos, b1 = beatPos + n[1];
-      for (var b = Math.ceil(b0 - 1e-6); b < b1 - 1e-6; b++) {
-        var tt = nextT + (b - b0) * BEAT, bar = Math.floor(b / 4) % 16;
-        if (b % 2 === 0) soft(BASS[bar], tt, BEAT * 1.8, .35, musicBus);
-        else soft(BASS[bar] * 1.5, tt, BEAT * 1.2, .18, musicBus);
-        jingle(tt, b % 2 ? .25 : .12, musicBus); jingle(tt + BEAT / 2, .07, musicBus);
-      }
-      beatPos = b1; nextT += d; mi = (mi + 1) % MEL.length;
-      if (mi === 0) beatPos = 0;
-    }
-  }
+  /* Фоновая музыка — файл music.mp3 (Jingle Bells), играет через обычный audio: слышно и на iPhone в беззвучном режиме */
+  var VOL = .45, bgm = new Audio('music.mp3'), wantMusic = false;
+  bgm.loop = true; bgm.preload = 'auto'; bgm.volume = VOL;
+  function playBgm() { try { var p = bgm.play(); if (p && p.catch) p.catch(function () {}); } catch (e) {} }
   function start() {
-    if (!init()) return; unlock();
-    if (timer) return;
-    nextT = ctx.currentTime + .1; mi = 0; beatPos = 0;
-    timer = setInterval(schedule, 100);
+    unlock(); wantMusic = true;
+    if (musicOn) playBgm();
   }
   function setMusic(on) {
     musicOn = on; try { localStorage.setItem('xmas-music', on ? '1' : '0'); } catch (e) {}
-    if (musicBus) musicBus.gain.setTargetAtTime(on ? .22 : 0, ctx.currentTime, .1);
+    if (on && wantMusic) playBgm(); else if (!on) bgm.pause();
   }
   function setSfx(on) {
     sfxOn = on; try { localStorage.setItem('xmas-sfx', on ? '1' : '0'); } catch (e) {}
     if (sfxBus) sfxBus.gain.setTargetAtTime(on ? .6 : 0, ctx.currentTime, .05);
   }
-  function duck(on) { if (musicBus && musicOn) musicBus.gain.setTargetAtTime(on ? .07 : .22, ctx.currentTime, .08); }
+  var duckT = null;
+  function duck(on) {
+    clearInterval(duckT); var target = on ? VOL * .3 : VOL;
+    duckT = setInterval(function () {
+      var v = bgm.volume + (target - bgm.volume) * .35;
+      if (Math.abs(v - target) < .01) { v = target; clearInterval(duckT); }
+      try { bgm.volume = v; } catch (e) { clearInterval(duckT); }
+    }, 40);
+  }
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) bgm.pause(); else if (wantMusic && musicOn) playBgm();
+  });
+  window.addEventListener('pagehide', function () { bgm.pause(); });
   function now() { return ctx ? ctx.currentTime + .01 : 0; }
   var fx = {
     tap: function () { if (!ctx) return; bell(1318.5, now(), .25, .25, sfxBus); },
@@ -93,5 +79,5 @@ window.XmasAudio = (function () {
     win: function () { if (!ctx) return; var t = now(); [[392, 0], [493.88, .15], [587.33, .3], [783.99, .45], [987.77, .6]].forEach(function (p) { bell(p[0] * 2, t + p[1], 1.2, .3, sfxBus); }); }
   };
   return { start: start, unlock: unlock, setMusic: setMusic, setSfx: setSfx, duck: duck, fx: fx,
-    get music() { return musicOn; }, get sfx() { return sfxOn; } };
+    get music() { return musicOn; }, get sfx() { return sfxOn; }, get playing() { return !bgm.paused; } };
 })();
