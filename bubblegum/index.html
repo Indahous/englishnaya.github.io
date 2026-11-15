@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Bubble Gum — игра для занятия английским — englishnayakids.ru</title>
+  <meta name="description" content="Игра-автомат с жвачками для онлайн-занятия: читаем слова we, go, do, to, I, my, he, you, one, two и зарабатываем баллы." />
+  <link href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;500;600;700&subset=latin,cyrillic" rel="stylesheet">
+  <link rel="stylesheet" href="bubblegum.css" />
+  <link rel="icon" href="/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+</head>
+<body data-screen="setup">
+
+  <header class="top">
+    <a class="brand" href="/" aria-label="Инглишная KiDS"><img src="img/logo.png" alt="" width="40" height="48" /><span>Bubble Gum</span></a>
+    <div class="tools hidden" id="tools">
+      <button class="tbtn" id="btn-undo" type="button" title="Отменить последнюю жвачку" aria-label="Отменить последнюю жвачку" disabled>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 7H4V2M4.5 7A9 9 0 1 1 3 13" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" transform="scale(-1 1) translate(-24 0)"/></svg><span>Отменить</span>
+      </button>
+      <button class="tbtn" id="btn-restart" type="button" title="Начать заново" aria-label="Начать заново">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 12a8 8 0 1 1-2.5-5.8M20 3v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Заново</span>
+      </button>
+      <button class="tbtn icon" id="btn-sound" type="button" title="Звуки" aria-label="Звуки" aria-pressed="true">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 9v6h4l5 4V5L7 9H3z" fill="currentColor"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path class="slash" d="M3 3 L21 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg>
+      </button>
+      <button class="tbtn icon" id="btn-full" type="button" title="Во весь экран" aria-label="Во весь экран">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <!-- Экран настройки -->
+  <main class="screen" id="screen-setup">
+    <form class="panel" id="setup" autocomplete="off">
+      <h1>Bubble Gum</h1>
+      <p class="sub">Читаем слова с жвачки и зарабатываем баллы!</p>
+      <div class="names">
+        <label class="who p1"><span>Первый игрок</span><input id="name1" maxlength="14" placeholder="Имя" value="Учитель" /></label>
+        <label class="who p2"><span>Второй игрок</span><input id="name2" maxlength="14" placeholder="Имя" value="Ученица" /></label>
+      </div>
+      <div class="count">
+        <span>Жвачек в автомате</span>
+        <div class="seg" role="radiogroup" aria-label="Количество жвачек">
+          <button type="button" class="on" data-n="20" role="radio" aria-checked="true">20</button>
+          <button type="button" data-n="30" role="radio" aria-checked="false">30</button>
+        </div>
+      </div>
+      <button class="btn primary" type="submit">Начать игру</button>
+    </form>
+  </main>
+
+  <!-- Игра -->
+  <main class="game hidden" id="screen-game">
+    <section class="card p1" id="card0" aria-live="polite">
+      <div class="turn">Ходит</div>
+      <div class="nm" id="nm0">Учитель</div>
+      <div class="sc" id="sc0">0</div>
+    </section>
+
+    <div class="machine-wrap">
+      <svg class="machine" id="machine" viewBox="0 0 800 1100" role="group" aria-label="Автомат с жвачками"></svg>
+      <div class="left-info" id="left-info">Осталось жвачек: <b id="left">20</b></div>
+    </div>
+
+    <section class="card p2" id="card1" aria-live="polite">
+      <div class="turn">Ходит</div>
+      <div class="nm" id="nm1">Ученица</div>
+      <div class="sc" id="sc1">0</div>
+    </section>
+  </main>
+
+  <!-- Приз -->
+  <div class="prize hidden" id="prize" role="dialog" aria-label="Жвачка вылетела">
+    <div class="prize-in" id="prize-in">
+      <div class="big-ball"><span id="pz-word">we</span></div>
+      <div class="badge" id="pz-badge">+4</div>
+      <div class="cheer" id="pz-cheer">Super!</div>
+      <div class="who-gets" id="pz-who"></div>
+    </div>
+  </div>
+
+  <!-- Итог -->
+  <section class="screen hidden" id="screen-end">
+    <canvas id="confetti" aria-hidden="true"></canvas>
+    <div class="panel win">
+      <h2 id="end-title">Ура!</h2>
+      <p class="winner" id="end-winner"></p>
+      <div class="final">
+        <div class="fc p1"><span id="fn0"></span><b id="fs0"></b></div>
+        <div class="fc p2"><span id="fn1"></span><b id="fs1"></b></div>
+      </div>
+      <div class="acts">
+        <button class="btn primary" id="btn-again" type="button">Играть ещё</button>
+        <button class="btn" id="btn-names" type="button">Новые игроки</button>
+      </div>
+    </div>
+  </section>
+
+  <script src="bubblegum.js"></script>
+</body>
+</html>
