@@ -6,8 +6,8 @@
 
   /* Вещи. Посадка — в координатах картинки Лонги 396×563: x, y (левый верх), ширина */
   var ITEMS = {
-    sweater: { word: 'sweater', icon: 'sweater', layers: [['sweater', 52, 298, 262]] },
-    coat: { word: 'coat', icon: 'coat', layers: [['coat', 40, 292, 300]] },
+    sweater: { word: 'sweater', icon: 'sweater', layers: [['sweater', 34, 296, 336, 214]] },
+    coat: { word: 'coat', icon: 'coat', layers: [['coat', 20, 290, 360, 215]] },
     socks: { word: 'socks', icon: 'socks2', plural: true, layers: [['socks', 110, 482, 100], ['socks2', 256, 478, 100]] },
     boots: { word: 'boots', icon: 'boots', plural: true, layers: [['boots', 108, 462, 104], ['boots2', 254, 458, 104]] },
     hat: { word: 'hat', icon: 'hat', layers: [['hat', 70, -62, 150]] }
@@ -19,7 +19,7 @@
     var h = '<img class="base" src="../tree/img/longi.png" alt="" draggable="false">';
     Z.forEach(function (k) {
       ITEMS[k].layers.forEach(function (l) {
-        var s = SIZE[l[0]], hgt = l[3] * s[1] / s[0];
+        var s = SIZE[l[0]], hgt = l[4] || l[3] * s[1] / s[0];
         h += '<img class="layer' + (on ? ' on' : '') + '" data-k="' + k + '" src="img/' + l[0] + '.png" alt="" draggable="false" style="left:' + (l[1] / 3.96) + '%;top:' + (l[2] / 5.63) + '%;width:' + (l[3] / 3.96) + '%;height:' + (hgt / 5.63) + '%">';
       });
     });
