@@ -266,5 +266,5 @@
   XTree.build($('tree'), $('slots'), '../tree/img/');
   layout(); buildGifts(); syncBtns();
   addEventListener('resize', layout);
-  window.__gifts = { state: function () { return G; }, center: giftCenter, scale: function () { return scale; } };
+  window.__gifts = { missing: missing, clips: clips, state: function () { return G; }, center: giftCenter, scale: function () { return scale; } };
 })();
