@@ -82,8 +82,8 @@
 
   /* ---------------- Раскладка сцены ---------------- */
   var LAYOUT = {
-    land: { W: 1000, H: 620, tree: [290, 66, 400], longi: [70, 262, 340], say: [96, 214], box: [722, 392, 262, 178], light: [853, 450], room: 512 },
-    port: { W: 600, H: 960, tree: [55, 50, 490], longi: [4, 628, 300], say: [20, 590], box: [212, 676, 380, 220], light: [400, 760], room: 600 }
+    land: { W: 1000, H: 620, tree: [290, 66, 400], longi: [70, 262, 340], say: [96, 214], box: [706, 318, 282, 252], light: [853, 450], room: 512 },
+    port: { W: 600, H: 960, tree: [55, 50, 490], longi: [4, 628, 300], say: [20, 590], box: [190, 628, 404, 312], light: [400, 760], room: 600 }
   };
   var L = null;
   function layout() {
@@ -102,11 +102,11 @@
   }
 
   /* ---------------- Голос ---------------- */
-  var VOICE = ['red', 'yellow', 'green', 'blue', 'yes', 'no-its', 'star', 'light', 'wow', 'hello'];
+  var VOICE = ['its-red', 'its-yellow', 'its-green', 'its-blue', 'ask-red', 'ask-yellow', 'ask-green', 'ask-blue', 'yes', 'star', 'light', 'wow'];
   var clips = {}, missing = {};
   VOICE.forEach(function (k) {
     var a = new Audio(); a.preload = 'auto';
-    a.addEventListener('error', function () { missing[k] = true; if (G && G.asked === k) showWord(); });
+    a.addEventListener('error', function () { missing[k] = true; if (G && G.asked && 'ask-' + G.asked === k) showWord(); });
     a.src = 'voice/' + k + '.mp3'; clips[k] = a;
   });
   var vTok = 0;
@@ -139,7 +139,7 @@
   function showWord() {
     var w = $('p-word'); w.textContent = G.asked;
     // пока нет озвучки цвета — слово окрашено, чтобы ребёнок мог играть
-    w.style.color = missing[G.asked] || !A.sfx ? HEX[G.asked] : '';
+    w.style.color = missing['ask-' + G.asked] || !A.sfx ? HEX[G.asked] : '';
   }
 
   function newGame() {
@@ -157,7 +157,7 @@
       var b = document.createElement('button'); b.type = 'button'; b.className = 'ball'; b.dataset.c = c;
       b.setAttribute('aria-label', 'Шарик ' + (i + 1));
       b.innerHTML = '<img src="img/ball-' + c + '.png" alt="" draggable="false">';
-      b.addEventListener('click', function () { pick(b); });
+      makeDraggable(b);
       bi.appendChild(b);
     });
     var pr = $('progress'); pr.innerHTML = ''; for (var i = 0; i < 8; i++) pr.appendChild(document.createElement('i'));
@@ -175,9 +175,9 @@
     var opts = left.filter(function (c) { return c !== G.last; }); if (!opts.length) opts = left;
     G.asked = opts[Math.floor(Math.random() * opts.length)];
     var p = $('prompt'); p.classList.remove('hidden', 'ask'); void p.offsetWidth; p.classList.add('ask');
-    showWord(); speak(G.asked); G.busy = false;
+    showWord(); speak('ask-' + G.asked); G.busy = false;
   }
-  function repeat() { if (G && G.phase === 'play' && G.asked) { A.fx.tap(); speak(G.asked); } }
+  function repeat() { if (G && G.phase === 'play' && G.asked) { A.fx.tap(); speak('ask-' + G.asked); } }
 
   function flyTo(srcEl, dstEl, done) {
     var r = srcEl.getBoundingClientRect(), t = dstEl.getBoundingClientRect();
@@ -200,32 +200,86 @@
     }
   }
 
-  function pick(b) {
-    if (!G || G.busy) return;
+  function pick(b, el) {
+    if (!G || G.busy) { if (el) giveBack(el, b); return; }
     A.unlock();
-    if (G.phase === 'star' && b.classList.contains('star')) return placeStar(b);
-    if (G.phase !== 'play' || b.classList.contains('gone')) return;
+    if (G.phase === 'star' && b.classList.contains('star')) return placeStar(b, el);
+    if (G.phase !== 'play' || b.classList.contains('gone')) { if (el) giveBack(el, b); return; }
     A.fx.tap();
     var c = b.dataset.c;
     if (c === G.asked) {
-      G.busy = true; var slot = $('slot' + G.placed); b.classList.add('gone');
+      G.busy = true; var slot = $('slot' + G.placed); b.classList.add('gone'); b.classList.remove('lifted');
       $('prompt').classList.remove('ask');
-      flyTo(b, slot, function () {
+      flyTo(el || b, slot, function () {
         slot.innerHTML = '<img src="img/ball-' + c + '.png" alt="' + c + ' ball" draggable="false">';
         slot.classList.remove('next'); A.fx.hang(); A.fx.ok(); sparks(slot);
         $('progress').children[G.placed].classList.add('on'); $('progress').children[G.placed].style.background = HEX[c];
         G.placed++; G.last = c; longi('yes'); bubble('Yes! ' + c.charAt(0).toUpperCase() + c.slice(1) + '!', 1500);
-        speak(['yes', c]);
+        speak(['yes', 'its-' + c]);
         setNext();
         if (G.placed === 8) setTimeout(starPhase, 1500); else setTimeout(ask, 1700);
       });
+      if (el) el.remove();
     } else {
       G.busy = true; G.mistakes++;
-      b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake');
+      if (el) giveBack(el, b, 380);
+      setTimeout(function () { b.classList.remove('shake'); void b.offsetWidth; b.classList.add('shake'); }, el ? 380 : 0);
       A.fx.oops(); longi('no'); bubble("No, it's " + c + '.', 1600);
-      speak(['no-its', c]);
-      setTimeout(function () { b.classList.remove('shake'); if (G.phase === 'play') { G.busy = false; speak(G.asked); } }, 1700);
+      speak('its-' + c);
+      setTimeout(function () { b.classList.remove('shake'); if (G.phase === 'play') { G.busy = false; speak('ask-' + G.asked); } }, 2000);
     }
+  }
+
+  /* ---------------- Тап и «удержание»: шарик можно нести пальцем/мышкой ---------------- */
+  function giveBack(el, b, ms) {
+    var r = b.getBoundingClientRect(), w = el.offsetWidth, h = el.offsetHeight;
+    el.style.transition = 'transform ' + (ms || 320) + 'ms cubic-bezier(.3,1.3,.5,1)';
+    el.style.transform = 'translate(' + (r.left + r.width / 2 - w / 2) + 'px,' + (r.top + r.height / 2 - h / 2) + 'px) scale(1)';
+    setTimeout(function () { el.remove(); b.classList.remove('lifted'); }, (ms || 320) + 20);
+  }
+  function overTree(x, y) {
+    var r = $('tree').getBoundingClientRect(), padX = r.width * .05;
+    return x > r.left - padX && x < r.right + padX && y > r.top && y < r.bottom;
+  }
+  function makeDraggable(b) {
+    var st = null;
+    function place(e) {
+      var el = st.el, w = el.offsetWidth, h = el.offsetHeight, lift = e.pointerType === 'touch' ? h * .75 : 0;
+      st.cx = e.clientX; st.cy = e.clientY - lift;
+      el.style.transform = 'translate(' + (st.cx - w / 2) + 'px,' + (st.cy - h / 2) + 'px) scale(1.18)';
+      var on = overTree(st.cx, st.cy);
+      if (on !== st.over) { st.over = on; document.body.classList.toggle('over-tree', on); }
+    }
+    b.addEventListener('pointerdown', function (e) {
+      if (!G || G.busy || (e.pointerType === 'mouse' && e.button !== 0)) return;
+      if (G.phase === 'play' ? b.classList.contains('gone') : !b.classList.contains('star')) return;
+      st = { id: e.pointerId, x0: e.clientX, y0: e.clientY, on: false, el: null, over: false };
+      try { b.setPointerCapture(e.pointerId); } catch (_) {}
+    });
+    b.addEventListener('pointermove', function (e) {
+      if (!st || e.pointerId !== st.id) return;
+      if (!st.on) {
+        if (Math.hypot(e.clientX - st.x0, e.clientY - st.y0) < 8) return;
+        st.on = true; A.unlock();
+        var r = b.getBoundingClientRect(), el = document.createElement('div'); el.className = 'drag';
+        el.style.width = r.width + 'px'; el.style.height = r.height + 'px';
+        el.appendChild(b.querySelector('img,svg').cloneNode(true)); $('fx').appendChild(el);
+        el.querySelector('img,svg').style.cssText = 'width:100%;height:100%;display:block';
+        st.el = el; b.classList.add('lifted'); document.body.classList.add('dragging');
+      }
+      place(e);
+    });
+    function end(e, cancel) {
+      if (!st || e.pointerId !== st.id) return;
+      var s = st; st = null;
+      document.body.classList.remove('dragging', 'over-tree');
+      try { b.releasePointerCapture(e.pointerId); } catch (_) {}
+      if (!s.on) { if (!cancel) pick(b); return; }
+      if (!cancel && overTree(s.cx, s.cy)) pick(b, s.el); else giveBack(s.el, b);
+    }
+    b.addEventListener('pointerup', function (e) { end(e, false); });
+    b.addEventListener('pointercancel', function (e) { end(e, true); });
+    b.addEventListener('click', function (e) { if (e.detail === 0) pick(b); });   // клавиатура
   }
 
   function starPhase() {
@@ -234,19 +288,20 @@
     var b = document.createElement('button'); b.type = 'button'; b.className = 'ball star'; b.setAttribute('aria-label', 'Звезда');
     b.innerHTML = '<svg viewBox="0 0 100 100"><path d="' + starPath(50, 52, 44) + '" fill="#f6cf4a" stroke="#c9952a" stroke-width="4" stroke-linejoin="round"/><path d="' + starPath(50, 52, 26) + '" fill="#fbe38a" opacity=".7"/></svg>';
     b.style.gridColumn = '2 / span 2'; b.style.maxWidth = '110px';
-    b.addEventListener('click', function () { pick(b); });
+    makeDraggable(b);
     bi.appendChild(b);
     longi('yes'); bubble('Put the star on top!');
     speak('star');
   }
-  function placeStar(b) {
+  function placeStar(b, el) {
     G.busy = true; A.fx.tap();
-    flyTo(b, $('star-target'), function () {
+    flyTo(el || b, $('star-target'), function () {
       b.remove(); var s = $('topstar'); s.style.display = ''; s.classList.add('on'); A.fx.star(); sparks($('star-target'), 18);
       G.phase = 'light'; longi('yes'); bubble("Let's light the tree!");
       speak('light');
       setTimeout(function () { $('light-btn').classList.remove('hidden'); G.busy = false; }, 700);
     });
+    if (el) { el.remove(); b.style.visibility = 'hidden'; }
   }
   function lightUp() {
     if (!G || G.phase !== 'light' || G.busy) return;

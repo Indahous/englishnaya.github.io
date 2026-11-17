@@ -42,12 +42,18 @@ body{font-family:'Unbounded',sans-serif;color:var(--dark);background:linear-grad
 .say::after{content:'';position:absolute;left:24px;bottom:-10px;border:10px solid transparent;border-top-color:#fff;border-bottom:0}
 /* коробка */
 .box{position:absolute}
-.box-in{position:absolute;left:5%;right:5%;top:0;bottom:7%;row-gap:2px;display:grid;grid-template-columns:repeat(4,1fr);align-items:end;justify-items:center;gap:2%}
-.box-front{position:absolute;left:0;right:0;bottom:0;height:20%;border-radius:10px 10px 16px 16px;background:repeating-linear-gradient(90deg,#ec8a7f 0 18px,#f3a49a 18px 36px);border:4px solid #b9584f;box-shadow:inset 0 6px 0 rgba(255,255,255,.3);pointer-events:none}
+.box-in{position:absolute;left:5%;right:5%;top:0;bottom:12%;row-gap:2px;display:grid;grid-template-columns:repeat(4,1fr);align-items:end;justify-items:center;gap:2%}
+.box-front{position:absolute;left:0;right:0;bottom:0;height:15%;border-radius:10px 10px 16px 16px;background:repeating-linear-gradient(90deg,#ec8a7f 0 18px,#f3a49a 18px 36px);border:4px solid #b9584f;box-shadow:inset 0 6px 0 rgba(255,255,255,.3);pointer-events:none}
 .box-front::before{content:'';position:absolute;left:-4px;right:-4px;top:-14px;height:14px;background:#d9675e;border-radius:6px;border:4px solid #b9584f}
-.ball{width:100%;max-width:120px;aspect-ratio:240/272;border:0;padding:0;background:none;cursor:pointer;position:relative;transition:transform .15s}
+.ball{width:100%;max-width:120px;aspect-ratio:240/272;border:0;padding:0;background:none;cursor:grab;position:relative;transition:transform .15s;touch-action:none}
+.ball.lifted{opacity:.25;transform:none}
+.drag{position:fixed;left:0;top:0;z-index:35;pointer-events:none;will-change:transform;filter:drop-shadow(0 12px 8px rgba(0,0,0,.25))}
+.dragging,.dragging .ball{cursor:grabbing}
+.tree{transition:filter .25s}
+.over-tree .tree{filter:drop-shadow(0 0 14px rgba(255,255,255,.95)) drop-shadow(0 0 4px #fff)}
+.dragging .slot.next .ghost{background:rgba(255,255,255,.55)}
 .ball img{width:100%;height:100%;display:block;pointer-events:none;filter:drop-shadow(0 3px 2px rgba(0,0,0,.18))}
-.ball:hover{transform:translateY(-6px)}
+.ball:hover{transform:translateY(-6px)}.ball.lifted:hover{transform:none}
 .ball.shake{animation:shake .45s}
 @keyframes shake{20%{transform:translateX(-10%) rotate(-8deg)}50%{transform:translateX(10%) rotate(8deg)}80%{transform:translateX(-5%)}}
 .ball.gone{visibility:hidden}
