@@ -70,15 +70,20 @@
 
   /* Озвучка: файлы advent/voice/windy.mp3 и т.д. Если файла нет — игра просто идёт без голоса */
   var clips = {};
+  function clip(key) {
+    var a = clips[key];
+    if (!a) { a = clips[key] = new Audio(); a.preload = 'auto'; a.onerror = function () { clips[key] = { play: function () {}, pause: function () {}, dead: true }; }; a.src = 'voice/' + key + '.mp3'; }
+    return a;
+  }
   function say(key) {
     if (!soundOn) return;
     try {
-      var a = clips[key] || (clips[key] = new Audio('voice/' + key + '.mp3'));
-      a.onerror = function () { clips[key] = { play: function () {}, pause: function () {} }; };
-      a.currentTime = 0;
+      Object.keys(clips).forEach(function (k) { if (k !== key && !clips[k].dead) { try { clips[k].pause(); } catch (e) {} } });   // предыдущая реплика не накладывается на новую
+      var a = clip(key); a.currentTime = 0;
       var p = a.play(); if (p && p.catch) p.catch(function () {});
     } catch (e) {}
   }
+  function preload() { WORDS.concat(['pair', 'win', 'lose']).forEach(clip); }
   function sfx(name) { if (soundOn && A && A[name]) { try { A[name](); } catch (e) {} } }
 
   var BACK = '<svg viewBox="0 0 100 125" preserveAspectRatio="xMidYMid slice"><rect width="100" height="125" fill="' + TEAL + '"/><rect x="6" y="6" width="88" height="113" rx="6" fill="none" stroke="#fff" stroke-opacity=".5" stroke-dasharray="3 3"/>' +
@@ -182,7 +187,7 @@
     })(t0);
   }
 
-  function openGame() { modal.classList.remove('hidden'); document.body.classList.add('lock'); newGame(); $('x').focus(); }
+  function openGame() { preload(); modal.classList.remove('hidden'); document.body.classList.add('lock'); newGame(); $('x').focus(); }
   function closeGame() { stop(); if (G) G.done = true; modal.classList.add('hidden'); document.body.classList.remove('lock'); }
   $('x').addEventListener('click', closeGame);
   $('o-close').addEventListener('click', closeGame);
