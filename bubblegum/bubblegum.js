@@ -1,6 +1,6 @@
 (function () {
   'use strict';
-  var WORDS = ['we', 'go', 'do', 'to', 'I', 'my', 'he', 'you', 'one', 'two'];
+  var WORDS = window.BG_WORDS || ['we', 'go', 'do', 'to', 'I', 'my', 'he', 'you', 'one', 'two'];
   var PTS = [4, 3, 2, 1, -1, -2, -3];
   var $ = function (id) { return document.getElementById(id); };
   var NS = 'http://www.w3.org/2000/svg';
@@ -111,18 +111,18 @@
   }
   function shuffle(a) { for (var i = a.length - 1; i > 0; i--) { var j = Math.floor(Math.random() * (i + 1)), t = a[i]; a[i] = a[j]; a[j] = t; } return a; }
   function dealWords(N) {
-    var arr = [], per = Math.ceil(N / WORDS.length);
-    for (var i = 0; i < per; i++) arr = arr.concat(WORDS);
-    // чтобы в автомате было ровно по столько же каждого слова, обрезаем лишнее случайно
-    arr = shuffle(arr).slice(0, N);
-    return arr;
+    // каждое слово встречается поровну; если слов больше, чем жвачек, или есть остаток — лишнее выбирается случайно
+    var arr = [], full = Math.floor(N / WORDS.length), i;
+    for (i = 0; i < full; i++) arr = arr.concat(WORDS);
+    arr = arr.concat(shuffle(WORDS.slice()).slice(0, N - arr.length));
+    return shuffle(arr);
   }
 
   /* ---------------- Состояние ---------------- */
   var S = null;
   var gumNodes = [];
   function fitText(word, r) {
-    var k = word.length === 1 ? 1.15 : word.length === 2 ? .98 : .8;
+    var k = word.length === 1 ? 1.15 : word.length === 2 ? .98 : word.length >= 5 ? .66 : .8;
     return Math.round(r * k);
   }
   function drawGums() {

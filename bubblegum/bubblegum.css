@@ -94,3 +94,8 @@ body{font-family:'Unbounded',sans-serif;color:var(--dark);background:radial-grad
 @media (max-width:520px){.panel{padding:20px 16px}.panel h1,.panel h2{font-size:32px}.names{grid-template-columns:1fr}.who input{font-size:16px}.btn{font-size:16px;padding:12px 26px}}
 @media (max-height:520px){.panel{padding:14px 20px}.panel h1{font-size:30px}.panel .sub{margin-bottom:10px}.names,.count{margin-bottom:10px}}
 #screen-end{background:rgba(247,246,234,.82)}
+
+a.btn{display:inline-block;text-decoration:none}
+.btn.next{background:var(--yellow);border-color:#e6cf6e;color:var(--dark)}
+#setup .btn.next{display:block;width:max-content;margin:12px auto 0;padding:10px 24px;font-size:15px}
+.panel h1 .lvl{display:block;font-size:20px;color:var(--teal);margin-top:4px}
